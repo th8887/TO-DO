@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/swipe"
+        android:icon="@drawable/swipe"
+        android:orderInCategory="50"
+        app:showAsAction="always"
+        android:title="TODO">
+    </item>
+
+    <item
+        android:id="@+id/i"
+        android:title="Sort"
+        android:icon="@drawable/info"
+        android:orderInCategory="60"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/cm"
+        android:title="Create Mission"
+        android:orderInCategory="100"
+        />
+
+    <item
+        android:id="@+id/ui"
+        android:title="User's info"
+        android:orderInCategory="500"
+        />
+    <item
+        android:id="@+id/ft"
+        android:title="Focus Timer"
+        android:orderInCategory="400"
+        />
+    <item
+        android:id="@+id/cl"
+        android:title="Check List"
+        android:orderInCategory="200"
+        />
+</menu>

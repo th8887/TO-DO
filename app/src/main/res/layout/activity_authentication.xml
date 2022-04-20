@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Activities.Authentication">
+
+  <androidx.appcompat.widget.Toolbar
+      android:id="@+id/tb"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:background="@color/white">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/biorhyme_bold"
+        android:text="Log In 🖥️:"
+        android:textColor="@color/ocean"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+  </androidx.appcompat.widget.Toolbar>
+
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="horizontal">
+
+    <Space
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="5" />
+
+    <LinearLayout
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="90"
+        android:orientation="vertical">
+
+      <Space
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="5" />
+
+      <EditText
+          android:id="@+id/name"
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="10"
+          android:ems="10"
+          android:hint="name"
+          android:inputType="textPersonName" />
+
+      <Space
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="2" />
+
+      <EditText
+          android:id="@+id/email"
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="10"
+          android:ems="10"
+          android:hint="email"
+          android:inputType="textEmailAddress" />
+
+      <Space
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="2" />
+
+      <EditText
+          android:id="@+id/password"
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="10"
+          android:ems="10"
+          android:hint="password"
+          android:inputType="textPassword" />
+
+      <Space
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="2" />
+
+      <EditText
+          android:id="@+id/phone"
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="10"
+          android:ems="10"
+          android:hint="phone"
+          android:inputType="phone" />
+
+      <Space
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="2" />
+
+      <CheckBox
+          android:id="@+id/cBstayconnect"
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="8"
+          android:text="Stay Connected." />
+
+      <Space
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="2" />
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="10"
+          android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="30"
+            android:orientation="horizontal">
+
+          <Space
+              android:layout_width="0px"
+              android:layout_height="match_parent"
+              android:layout_weight="10" />
+
+          <TextView
+              android:id="@+id/tvin"
+              android:layout_width="0px"
+              android:layout_height="match_parent"
+              android:layout_weight="80"
+              android:text="Don't have an account?  Register here." />
+
+          <Space
+              android:layout_width="0px"
+              android:layout_height="match_parent"
+              android:layout_weight="10" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="70"
+            android:orientation="horizontal">
+
+          <Space
+              android:layout_width="0px"
+              android:layout_height="match_parent"
+              android:layout_weight="60" />
+
+          <Button
+              android:id="@+id/ls"
+              android:layout_width="0px"
+              android:layout_height="match_parent"
+              android:layout_weight="30"
+              android:backgroundTint="@color/lightblue"
+              android:onClick="enter"
+              android:text="sign in " />
+
+          <Space
+              android:layout_width="0px"
+              android:layout_height="match_parent"
+              android:layout_weight="10" />
+
+        </LinearLayout>
+
+      </LinearLayout>
+
+      <Space
+          android:layout_width="match_parent"
+          android:layout_height="0px"
+          android:layout_weight="20" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="5" />
+
+  </LinearLayout>
+
+</LinearLayout>

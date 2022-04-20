@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/sort"
+        android:title="Sort"
+        android:icon="@drawable/sort"
+        android:orderInCategory="100"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/complete"
+                android:title="Show Completed✅"/>
+            <item
+                android:id="@+id/priority"
+                android:title="Prioritize🔢"/>
+            <item
+                android:id="@+id/uncomplete"
+                android:title="Show Un-completed❎"
+                />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/i"
+        android:title="Sort"
+        android:icon="@drawable/info"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/ui"
+        android:title="User's Information🔎"
+        android:orderInCategory="500"
+        />
+    <item
+        android:id="@+id/ft"
+        android:title="Focus Timer⏱️"
+        android:orderInCategory="400"
+        />
+    <item
+        android:id="@+id/c"
+        android:title="Calendar📅"
+        android:orderInCategory="300"
+        />
+</menu>
