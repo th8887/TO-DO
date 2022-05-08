@@ -1,10 +1,14 @@
 package com.example.schedulenotification.Activities;
 
+import static android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS;
+import static com.example.schedulenotification.Classes.Listener.status;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -14,6 +18,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,20 +26,27 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.schedulenotification.Activities.CalendarActivities.CalendarView;
 import com.example.schedulenotification.R;
+import com.example.schedulenotification.rollAdapter;
 
+import java.util.List;
 import java.util.Locale;
 
-public class TimerForFocus extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class TimerForFocus extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    Spinner h, m;
+    ListView h, m, s;
 
-    TextView cd;
+    TextView cd, hourt, minutet, sect;
 
     Button reset, start, clear;
 
     Toolbar tb;
+    /**
+     * @param hour- gets the hour that was chosen in listView
+     * @param minute - gets the minute thar was chosen in the listView
+     * @param sec - gets the seconds that was chosen in the listView
+     */
 
-    long START_TIME_IN_MILLIS=0 , mTimeLeftInMillis;
+    long START_TIME_IN_MILLIS=0 , mTimeLeftInMillis, hour, minute, sec;
 
     private CountDownTimer mCountDownTimer;
 
@@ -52,37 +64,60 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
             "24", "25", "26", "27", "28", "29" , "30", "31", "32", "33", "34", "35", "36", "37",
             "38", "39", "40", "41", "42", "43" , "44", "45", "46", "47", "48", "49", "50", "51",
             "52", "53", "54", "55", "56", "57" , "58", "59"};
-
+    /**
+     * if the time is not zero and the user wants to change it in the middle.
+     */
     boolean b=false;
 
     private boolean mTimerRunning;
+
+    rollAdapter<String> adph, adpm, adps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timer_for_focus);
 
-        h=(Spinner) findViewById(R.id.h);
-        m= (Spinner) findViewById(R.id.m);
+        h=(ListView) findViewById(R.id.h);
+        m= (ListView) findViewById(R.id.m);
+        s = (ListView) findViewById(R.id.s);
         cd=(TextView) findViewById(R.id.cd);
         reset= (Button) findViewById(R.id.reset);
         start=(Button) findViewById(R.id.start);
         clear= (Button) findViewById(R.id.clear);
+        hourt = (TextView) findViewById(R.id.hourt);
+        minutet = (TextView) findViewById(R.id.minutet);
+        sect = (TextView) findViewById(R.id.sect);
+
 
         tb = (Toolbar) findViewById(R.id.tb);
         setSupportActionBar(tb);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        h.setOnItemSelectedListener(this);
-        m.setOnItemSelectedListener(this);
 
-        ArrayAdapter<String> adph = new ArrayAdapter<String>(this,
+        h.setOnItemClickListener(this);
+        h.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        m.setOnItemClickListener(this);
+        m.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        s.setOnItemClickListener(this);
+        s.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        adph = new rollAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,hours);
         h.setAdapter(adph);
+        h.setSelectionFromTop(adph.MIDDLE, 0);
 
-        ArrayAdapter<String> adpm = new ArrayAdapter<String>(this,
+        adpm = new rollAdapter<>(this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,mis);
         m.setAdapter(adpm);
+        m.setSelectionFromTop(adpm.MIDDLE, 0);
+
+        adps = new rollAdapter<>(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,mis);
+        s.setAdapter(adps);
+        s.setSelectionFromTop(adps.MIDDLE, 0);
 
         cd.setVisibility(View.VISIBLE);
 
@@ -91,9 +126,12 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
             public void onClick(View view) {
                 h.setVisibility(View.GONE);
                 m.setVisibility(View.GONE);
+                s.setVisibility(View.GONE);
+
                 cd.setVisibility(View.VISIBLE);
 
                 if(cd.getText().toString().equals("00:00:00")||b){
+                    START_TIME_IN_MILLIS = hour + minute + sec;
                     mTimeLeftInMillis = START_TIME_IN_MILLIS;
                 }
                 if (mTimerRunning) {
@@ -108,6 +146,7 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                START_TIME_IN_MILLIS = hour + minute + sec;
                 mTimeLeftInMillis = START_TIME_IN_MILLIS;
                 resetTimer();
             }
@@ -117,19 +156,37 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
             @Override
             public void onClick(View view) {
                 START_TIME_IN_MILLIS=0;
-                h.setSelection(0);
-                m.setSelection(0);
+
                 clear.setVisibility(View.INVISIBLE);
                 reset.setVisibility(View.INVISIBLE);
                 start.setVisibility(View.VISIBLE);
+
                 cd.setText("00:00:00");
+                hourt.setText("hour:");
+                minutet.setText("minute:");
+                sect.setText("seconds:");
                 b=false;
             }
         });
 
         updateCountDownText();
+        status = true;
+
+        openNotificationAccess();
+
     }
 
+    /**
+     * asks the user for permission for the notifications in the app
+     */
+    private void openNotificationAccess() {
+        SharedPreferences pref = this.getSharedPreferences("PERMISSION_NOTIF",MODE_PRIVATE);
+        Boolean firstTime = pref.getBoolean("firstTime",true);
+        if(firstTime){
+            startActivity(new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
+            pref.edit().putBoolean("firstTime",false).apply();
+        }
+    }
     /**
      * @des starts the timer and the countdown, when the timer is done the user gets
      * a notification and the spinners are visible again.
@@ -159,6 +216,7 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
 
                 h.setVisibility(View.VISIBLE);
                 m.setVisibility(View.VISIBLE);
+                s.setVisibility(View.VISIBLE);
 
                 b=false;
             }
@@ -200,6 +258,7 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
 
         h.setVisibility(View.VISIBLE);
         m.setVisibility(View.VISIBLE);
+        s.setVisibility(View.VISIBLE);
     }
 
 
@@ -209,28 +268,39 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
      * @param par
      * @param view
      * @param pos
-     * @param l
      */
-    @Override
-    public void onItemSelected(AdapterView<?> par, View view, int pos, long l) {
-        switch(par.getId()){
-            case R.id.h:
-                if(!cd.getText().toString().equals("00:00:00")){
-                    b=true;
-                }
-                START_TIME_IN_MILLIS=mTimeLeftInMillis+ (long) (pos*3600000);
-                break;
-            case R.id.m:
-                if(!cd.getText().toString().equals("00:00:00")){
-                    b=true;
-                }
-                START_TIME_IN_MILLIS= mTimeLeftInMillis+ (long) (pos*60000);
-                break;
-        }
-    }
 
     @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {}
+    public void onItemClick(AdapterView<?> par, View view, int pos, long id) {
+        switch(par.getId()){
+            case R.id.m:
+                minutet.setText("minutes:" + adpm.getItem(pos));
+                if(!cd.getText().toString().equals("00:00:00")){
+                    b=true;
+                }
+                minute = (long) (Integer.parseInt(adpm.getItem(pos))*60000);
+                //START_TIME_IN_MILLIS= START_TIME_IN_MILLIS+ (long) (Integer.parseInt(adpm.getItem(pos))*60000);
+                break;
+            case R.id.h:
+                hourt.setText("hours:" + adph.getItem(pos));
+                if(!cd.getText().toString().equals("00:00:00")) {
+                    b = true;
+                }
+                hour = (long) (Integer.parseInt(adph.getItem(pos))*3600000);
+                //START_TIME_IN_MILLIS=START_TIME_IN_MILLIS+ (long) (Integer.parseInt(adph.getItem(pos))*3600000);
+                break;
+            case R.id.s:
+                sect.setText("seconds:" + adps.getItem(pos));
+                if(!cd.getText().toString().equals("00:00:00")) {
+                    b = true;
+                }
+                sec = (long) (Integer.parseInt(adps.getItem(pos))*1000);
+                //START_TIME_IN_MILLIS=START_TIME_IN_MILLIS+ (long) (Integer.parseInt(adps.getItem(pos))*1000);
+                break;
+        }
+
+    }
+
 
     /**
      * @des reset the time to the time the user chose in the first place.

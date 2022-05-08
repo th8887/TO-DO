@@ -54,7 +54,8 @@
           android:layout_weight="10"
           android:ems="10"
           android:hint="name"
-          android:inputType="textPersonName" />
+          android:inputType="textPersonName"
+          android:drawableLeft="@drawable/ic_baseline_person_24"/>
 
       <Space
           android:layout_width="match_parent"
@@ -68,7 +69,8 @@
           android:layout_weight="10"
           android:ems="10"
           android:hint="email"
-          android:inputType="textEmailAddress" />
+          android:inputType="textEmailAddress"
+          android:drawableLeft="@drawable/ic_baseline_email_24"/>
 
       <Space
           android:layout_width="match_parent"
@@ -82,7 +84,8 @@
           android:layout_weight="10"
           android:ems="10"
           android:hint="password"
-          android:inputType="textPassword" />
+          android:inputType="textPassword"
+          android:drawableLeft="@drawable/ic_baseline_lock_24"/>
 
       <Space
           android:layout_width="match_parent"
@@ -96,7 +99,9 @@
           android:layout_weight="10"
           android:ems="10"
           android:hint="phone"
-          android:inputType="phone" />
+          android:inputType="phone"
+          android:drawableLeft="@drawable/ic_baseline_phone_24"
+          />
 
       <Space
           android:layout_width="match_parent"
@@ -164,6 +169,7 @@
               android:layout_weight="30"
               android:backgroundTint="@color/lightblue"
               android:onClick="enter"
+              android:textColor="@color/black"
               android:text="sign in " />
 
           <Space

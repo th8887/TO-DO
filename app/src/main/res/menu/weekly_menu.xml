@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/swipe"
-        android:icon="@drawable/swipe"
+        android:icon="@drawable/swap"
         android:orderInCategory="50"
         app:showAsAction="always"
         android:title="TODO">
@@ -19,23 +19,23 @@
 
     <item
         android:id="@+id/cm"
-        android:title="Create Mission"
+        android:title="Create Mission📝"
         android:orderInCategory="100"
         />
 
     <item
         android:id="@+id/ui"
-        android:title="User's info"
+        android:title="User's info🔎"
         android:orderInCategory="500"
         />
     <item
         android:id="@+id/ft"
-        android:title="Focus Timer"
+        android:title="Focus Timer⏱️"
         android:orderInCategory="400"
         />
     <item
         android:id="@+id/cl"
-        android:title="Check List"
+        android:title="Check List📃"
         android:orderInCategory="200"
         />
 </menu>

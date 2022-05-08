@@ -2,7 +2,8 @@ package com.example.schedulenotification.Activities;
 
 import static com.example.schedulenotification.Activities.CreateMission.refDBC;
 import static com.example.schedulenotification.Activities.CreateMission.refDBUC;
-import static com.example.schedulenotification.refFB.reAuth;
+import static com.example.schedulenotification.Activities.Information.all;
+import static com.example.schedulenotification.Activities.Information.complete;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +32,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+/**
+ * shows the uncompleted mission, gives an opportunity to prioritize them, to see the completed ones
+ * and to create new ones.
+ */
 public class CheckList extends AppCompatActivity implements AdapterView.OnItemClickListener, View.OnCreateContextMenuListener {
 
     ListView titles;
@@ -40,6 +45,10 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
 
     Mission m;
     Toolbar tb;
+    /*
+    if the user sorts to uncompleted the menu will be the usual, other it will change.
+     */
+    boolean b = false;
 
     private ActivityCheckListBinding binding;
 
@@ -61,7 +70,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(CheckList.this, CreateMission.class);
-                i.putExtra("path", 1);
+                i.putExtra("check", 4);
                 startActivity(i);
             }
         });
@@ -71,6 +80,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
         titles.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         titles.setOnCreateContextMenuListener(this);
+        int mission = getIntent().getIntExtra("check",-1);
 
         refDBUC.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -79,8 +89,27 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                 missions.clear();
                 for (DataSnapshot data : dS.getChildren()) {
                     Mission mTmp = data.getValue(Mission.class);
-                    title_Mission.add(mTmp.getTitle());
-                    missions.add(mTmp);
+                        SharedPreferences settingsi = getSharedPreferences("INFO_NOTIF",MODE_PRIVATE);
+                        if(mTmp.getTitle().equals(settingsi.getString("title","aaa"))&& mission == 1){
+                            complete = complete + 1;
+                            m = mTmp;
+                            refDBUC.child(m.getTitle()).removeValue();
+                            m.setActive(true);
+                            refDBC.child(m.getTitle()).setValue(m);
+
+                            int i=0;
+                            while(i<missions.size()&& !m.equals(missions.get(i))){
+                                i++;
+                            }
+                            ArrayAdapter <String> adp= new ArrayAdapter<String>(CheckList.this,
+                                    androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
+                            titles.setAdapter(adp);
+                            Toast.makeText(CheckList.this, "Works!😁", Toast.LENGTH_SHORT).show();
+                        }
+                    else {
+                        title_Mission.add(mTmp.getTitle());
+                        missions.add(mTmp);
+                    }
                 }
                 ArrayAdapter<String> adp = new ArrayAdapter<String>(CheckList.this,
                         androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
@@ -102,7 +131,6 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
-
         if (v.getId() == R.id.titles) {
             ListView lv = (ListView) v;
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
@@ -111,13 +139,21 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
             int i = 0;
             while ((i < title_Mission.size()) && (!s.equals(title_Mission.get(i)))) {
                 i++;
-            }
-            m = missions.get(i);
         }
+        m = missions.get(i);
+        }
+        if(!b){
+
             menu.add("Check Mission");
             menu.add("Update Mission");
             menu.add("Delete Mission");
             menu.add("Cancel");
+        }
+        else{
+            menu.add("Un-Check Mission");
+            menu.add("Delete");
+            menu.add("Cancel");
+        }
     }
 
     /**
@@ -128,63 +164,137 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        String oper = item.getTitle().toString();
-        if (oper.equals("Check Mission")) {
-            refDBUC.child(m.getTitle()).removeValue();
-            m.setActive(true);
-            refDBC.child(m.getTitle()).setValue(m);
+        ArrayAdapter <String> adp;
+        int i;
 
-            int i=0;
-            while(i<missions.size()&& !m.equals(missions.get(i))){
-                i++;
+        SharedPreferences settings = getSharedPreferences("MISSION_NUM", MODE_PRIVATE);
+        SharedPreferences.Editor editorm = settings.edit();
+
+        if (!b) {
+            switch (item.getTitle().toString()) {
+                case "Check Mission":
+                    /*adds the completed mission to the number of total completed missions*/
+                    complete = complete + 1;
+                    editorm.putInt("complete", complete);
+                    editorm.commit();
+                    refDBUC.child(m.getTitle()).removeValue();
+                    m.setActive(true);
+                    refDBC.child(m.getTitle()).setValue(m);
+
+                    i = 0;
+                    while (i < missions.size() && !m.equals(missions.get(i))) {
+                        i++;
+                    }
+                    missions.remove(i);
+                    title_Mission.remove(i);
+                    adp = new ArrayAdapter<String>(CheckList.this,
+                            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
+                    titles.setAdapter(adp);
+                    Toast.makeText(this, "Works!😁", Toast.LENGTH_SHORT).show();
+                    break;
+                case "Update Mission":
+                    Intent si = new Intent(CheckList.this, CreateMission.class);
+
+                    si.putExtra("status", true);
+                    si.putExtra("check", 2);
+                    //si.putExtra("images", m.getImages());
+
+                    SharedPreferences setting = getSharedPreferences("missionInfo", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = setting.edit();
+
+                    editor.putString("title", m.getTitle());
+                    editor.putString("start", m.getOpenDate());
+                    editor.putString("end", m.getDueDate());
+                    editor.putInt("importance", m.getImportance());
+                    editor.putInt("category", m.getCategory());
+                    editor.putString("description", m.getDescription());
+                    editor.putInt("Status_size", m.getImages().size());
+
+                    for (int t = 0; t < m.getImages().size(); t++) {
+                        editor.remove("Status_" + t);
+                        editor.putString("Status_" + t, m.getImages().get(t));
+                    }
+                    //editor.putString("uID",reAuth.getCurrentUser().getUid());
+                    editor.commit();
+
+                    startActivity(si);
+                    finish();
+                    break;
+                case "Delete Mission":
+                    refDBUC.child(m.getTitle()).removeValue();
+
+                    all = all -1;
+
+                    editorm.putInt("all", all);
+                    editorm.commit();
+
+
+                    i = 0;
+                    while (i < missions.size() && !m.equals(missions.get(i))) {
+                        i++;
+                    }
+                    missions.remove(i);
+                    title_Mission.remove(i);
+                    adp = new ArrayAdapter<String>(CheckList.this,
+                            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
+                    titles.setAdapter(adp);
+                    break;
+                case "Cancel":
+                    closeContextMenu();
+                    break;
             }
-            missions.remove(i);
-            title_Mission.remove(i);
-            ArrayAdapter <String> adp= new ArrayAdapter<String>(CheckList.this,
-                    androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
-            titles.setAdapter(adp);
-            Toast.makeText(this, "Works!😁", Toast.LENGTH_SHORT).show();
+
         }
+        else{
+            //In the checked missions list
+            switch(item.getTitle().toString()) {
+                case "Un-Check Mission":
+                    /*minus the completed mission to the number of total completed missions*/
+                    complete = complete - 1;
 
-        if(oper.equals("Update Mission")){
-            Intent si= new Intent(CheckList.this, CreateMission.class);
+                    editorm.putInt("complete", complete);
+                    editorm.commit();
 
-            si.putExtra("status", true);
-            si.putExtra("check", 1);
-            si.putExtra("images", m.getImages());
+                    refDBC.child(m.getTitle()).removeValue();
+                    m.setActive(true);
+                    refDBUC.child(m.getTitle()).setValue(m);
 
-            SharedPreferences setting = getSharedPreferences("missionInfo", MODE_PRIVATE);
-            SharedPreferences.Editor editor = setting.edit();
+                    i = 0;
+                    while (i < missions.size() && !m.equals(missions.get(i))) {
+                        i++;
+                    }
+                    missions.remove(i);
+                    title_Mission.remove(i);
+                    adp = new ArrayAdapter<String>(CheckList.this,
+                            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
+                    titles.setAdapter(adp);
+                    Toast.makeText(this, "Works!😁", Toast.LENGTH_SHORT).show();
+                    break;
+                case "Delete Mission":
+                    refDBUC.child(m.getTitle()).removeValue();
 
-            editor.putString("title",m.getTitle() );
-            editor.putString("start",  m.getOpenDate());
-            editor.putString("end", m.getDueDate());
-            editor.putInt("importance",  m.getImportance());
-            editor.putInt("category", m.getCategory());
-            editor.putString("description", m.getDescription());
-            //editor.putString("uID",reAuth.getCurrentUser().getUid());
-            editor.commit();
+                    all = all - 1;
+                    complete = complete - 1;
 
-            startActivity(si);
-            finish();
-        }
+                    editorm.putInt("all", all);
+                    editorm.putInt("complete", complete);
+                    editorm.commit();
 
-        if (oper.equals("Delete Mission")){
-            refDBUC.child(m.getTitle()).removeValue();
 
-            int i=0;
-            while(i<missions.size()&& !m.equals(missions.get(i))){
-                i++;
+                    i = 0;
+                    while (i < missions.size() && !m.equals(missions.get(i))) {
+                        i++;
+                    }
+                    missions.remove(i);
+                    title_Mission.remove(i);
+                    adp = new ArrayAdapter<String>(CheckList.this,
+                            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
+                    titles.setAdapter(adp);
+                    break;
+                case "Cancel":
+                    closeContextMenu();
+                    break;
             }
-            missions.remove(i);
-            title_Mission.remove(i);
-            ArrayAdapter <String> adp= new ArrayAdapter<String>(CheckList.this,
-                    androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
-            titles.setAdapter(adp);
-        }
-
-        if(oper.equals("Cancel")){
-            closeContextMenu();
         }
         return true;
     }
@@ -211,8 +321,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                 finish();
                 break;
             case R.id.complete:
-                Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
-
+                b = true;
                 refDBC.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dS) {
@@ -234,7 +343,6 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                 });
                 break;
             case R.id.priority:
-                Toast.makeText(this, "2", Toast.LENGTH_SHORT).show();
                 Query q = refDBUC.orderByChild("importance");
                 q.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -257,6 +365,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                 });
                 break;
             case R.id.uncomplete:
+                b = false;
                 refDBUC.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dS) {

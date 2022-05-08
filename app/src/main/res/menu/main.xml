@@ -12,27 +12,27 @@
 
     <item
         android:id="@+id/cm"
-        android:title="Create Mission"
+        android:title="Create Mission📝"
         android:orderInCategory="100"
         />
     <item
         android:id="@+id/ui"
-        android:title="User's info"
+        android:title="User's info🔎"
         android:orderInCategory="500"
         />
     <item
         android:id="@+id/ft"
-        android:title="Focus Timer"
+        android:title="Focus Timer⏱️"
         android:orderInCategory="400"
         />
     <item
         android:id="@+id/c"
-        android:title="Calendar"
+        android:title="Calendar📅"
         android:orderInCategory="300"
         />
     <item
         android:id="@+id/cl"
-        android:title="Check List"
+        android:title="Check List📃"
         android:orderInCategory="200"
         />
 </menu>

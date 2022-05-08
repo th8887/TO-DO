@@ -10,10 +10,11 @@ public class Mission {
     private String openDate; //yyyy/mm/dd/hour/min
     private String dueDate;//yyyy/mm/dd/hour/min
     private int category;//from the index.
-    private ArrayList<String> images; //links of the images.
+    private ArrayList<String> images;//links of the images.
+    private String color;//color chosen for the mission
 
     public Mission(String title, int importance, String description, String openDate,
-                   String dueDate, int category){
+                   String dueDate, int category, String color){
         this.title=title;
         this.importance=importance;
         this.active= false;
@@ -23,6 +24,7 @@ public class Mission {
         this.category = category;
         this.images= new ArrayList<String>();
         images.add("images");
+        this.color = color;
         this.active= false;
     }
 
@@ -48,6 +50,10 @@ public class Mission {
     public void setimages(ArrayList<String> images) {
         this.images = images;
     }
+
+    public String getColor() { return color; }
+
+    public void setColor(String color) { this.color = color; }
 
     public void setImportance(int importance) {
         this.importance = importance;
@@ -102,6 +108,7 @@ public class Mission {
                 ", dueDate='" + dueDate + '\'' +
                 ", category=" + category +
                 ", images=" + images +
+                ",color=" + color +
                 '}';
     }
 }

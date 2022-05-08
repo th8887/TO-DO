@@ -50,7 +50,8 @@
                 android:id="@+id/titles"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
-                android:layout_weight="90">
+                android:layout_weight="90"
+                tools:listitem="@layout/checklist_cell">
 
             </ListView>
 

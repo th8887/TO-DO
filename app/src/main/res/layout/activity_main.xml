@@ -69,7 +69,8 @@
                         android:id="@+id/colors"
                         android:layout_width="0px"
                         android:layout_height="match_parent"
-                        android:layout_weight="40" />
+                        android:layout_weight="40"
+                        tools:listitem="@layout/color_cell"/>
 
                 </LinearLayout>
 
@@ -232,12 +233,12 @@
                         android:layout_width="0px"
                         android:layout_height="match_parent"
                         android:layout_gravity="end|bottom"
-                        android:layout_margin="16dp"
+                        android:layout_margin="10dp"
                         android:layout_weight="10"
                         android:onClick="addPicture"
+                        app:fabCustomSize="33dp"
                         android:src="@android:drawable/ic_input_add"
-                        app:backgroundTint="@color/lightpurple"
-                        app:fabSize="mini" />
+                        app:backgroundTint="@color/lightpurple" />
 
                 </LinearLayout>
 

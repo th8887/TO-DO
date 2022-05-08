@@ -41,25 +41,49 @@
             android:layout_weight="90"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="5"
-                android:autoSizeTextType="uniform"
-                android:fontFamily="@font/biorhyme_bold"
-                android:text="name:"
-                android:textColor="@color/beige"
-                android:textStyle="bold" />
 
-
-            <EditText
-                android:id="@+id/nameu"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0px"
-                android:layout_weight="10"
-                android:ems="10"
-                android:hint="name"
-                android:inputType="textPersonName" />
+                android:layout_weight="15"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="60"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="50"
+                        android:fontFamily="@font/biorhyme_bold"
+                        android:textSize="20sp"
+                        android:text="name:"
+                        android:textColor="@color/beige"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/nameu"
+                        android:layout_width="match_parent"
+                        android:layout_height="0px"
+                        android:layout_weight="50"
+                        android:ems="10"
+                        android:hint="name"
+                        android:inputType="textPersonName" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/profile"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="40"
+                    android:backgroundTint="@color/white"
+                    tools:srcCompat="@tools:sample/avatars"
+                    android:onClick="pickPic"/>
+
+            </LinearLayout>
 
             <Space
                 android:layout_width="match_parent"
@@ -73,6 +97,7 @@
                 android:autoSizeTextType="uniform"
                 android:fontFamily="@font/biorhyme_bold"
                 android:text="e-mail:"
+                android:textSize="20sp"
                 android:textColor="@color/beige"
                 android:textStyle="bold" />
 
@@ -83,30 +108,8 @@
                 android:layout_weight="10"
                 android:ems="10"
                 android:hint="e-mail"
-                android:inputType="textPersonName" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.5" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="5"
-                android:autoSizeTextType="uniform"
-                android:fontFamily="@font/biorhyme_bold"
-                android:text="Uid:"
-                android:textColor="@color/beige"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/uidu"
-                android:layout_width="match_parent"
-                android:layout_height="0px"
-                android:layout_weight="10"
-                android:ems="10"
-                android:inputType="textPersonName" />
+                android:onClick="warning"
+                android:inputType="textEmailAddress"/>
 
             <Space
                 android:layout_width="match_parent"
@@ -117,10 +120,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="5"
-                android:autoSizeTextType="uniform"
                 android:fontFamily="@font/biorhyme_bold"
                 android:text="Phone:"
                 android:textColor="@color/beige"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <EditText
@@ -134,16 +137,79 @@
 
             <Space
                 android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="5"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="20"
+                    android:fontFamily="@font/biorhyme_bold"
+                    android:text="Categories:"
+                    android:textColor="@color/beige"
+                    android:textSize="20sp" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" />
+
+                <ImageButton
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    app:srcCompat="@android:drawable/ic_input_add"
+                    app:tint="@color/beige"
+                    android:background="@color/white"
+                    android:onClick="addCat"/>
+
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/categories"
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="15" />
+
+            <Space
+                android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="0.5" />
 
-            <CheckBox
-                android:id="@+id/cBconnectview"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="0px"
                 android:layout_weight="10"
-                android:text="Stay Connected"
-                android:textColor="@color/beige" />
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cBconnectview"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="45"
+                    android:text="Stay Connected"
+                    android:textColor="@color/beige" />
+
+                <Space
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="10" />
+
+                <TextView
+                    android:id="@+id/showCom"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="45"
+                    android:fontFamily="@font/biorhyme_bold"
+                    android:text="Missions Completed:"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <Space
                 android:layout_width="match_parent"
@@ -159,20 +225,33 @@
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_weight="15" />
 
                 <Button
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="5"
-                    android:backgroundTint="@color/beige"
+                    android:layout_weight="30"
+                    android:backgroundTint="@color/darkgreen"
                     android:onClick="update"
-                    android:text="Update connect" />
+                    android:text="update info" />
 
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_weight="10" />
+
+                <Button
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="30"
+                    android:backgroundTint="@color/pink"
+                    android:text="log out"
+                    android:onClick="logOut"/>
+
+                <Space
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="15" />
 
             </LinearLayout>
 

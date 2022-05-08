@@ -35,6 +35,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class CreateEvent extends AppCompatActivity {
+    /**
+     * if an event was added, then the added event wont be added again in the weeklyCalendar activity
+     */
+    public static boolean added = false;
 
     EditText title, desEvent, locEvent;
     TextView startEvent, endEvent;
@@ -176,7 +180,7 @@ public class CreateEvent extends AppCompatActivity {
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void saveEvent(View view) {
-        if (!title.getText().toString().isEmpty()&& !locEvent.getText().toString().isEmpty()) {
+        if (!title.getText().toString().isEmpty()) {
             if (allDay.isChecked())
                 a=true;
             else
@@ -191,10 +195,22 @@ public class CreateEvent extends AppCompatActivity {
             Event e;
 
             if(!desEvent.getText().toString().isEmpty()) {
-                e = new Event(t, fdate, sS, eS, l, des, a);
+                if (locEvent.getText().toString().isEmpty()){
+                    e = new Event(t, fdate, sS, eS, "None", des, a);
+                }
+                else{
+                    e = new Event(t, fdate, sS, eS, l, des, a);
+                }
+
             }
             else {
-                e = new Event(t, fdate, sS, eS, l, a);
+                if (locEvent.getText().toString().isEmpty()){
+                    e = new Event(t, fdate, sS, eS, "None", a);
+                }
+                else{
+                    e = new Event(t, fdate, sS, eS, l, a);
+                }
+
             }
             Event.eventList.add(e);
 
@@ -215,6 +231,7 @@ public class CreateEvent extends AppCompatActivity {
             info.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
                     endTime.getTimeInMillis());
             info.putExtra(CalendarContract.Events.ALL_DAY, a);
+            added = true;
             startActivity(info);
             finish();
         }

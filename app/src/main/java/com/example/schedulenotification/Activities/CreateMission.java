@@ -1,6 +1,7 @@
 package com.example.schedulenotification.Activities;
 
 import static android.content.ContentValues.TAG;
+import static com.example.schedulenotification.Activities.Information.all;
 import static com.example.schedulenotification.Classes.Notification.channelID;
 import static com.example.schedulenotification.Classes.Notification.messageExtra;
 import static com.example.schedulenotification.Classes.Notification.notificationID;
@@ -9,6 +10,7 @@ import static com.example.schedulenotification.refFB.database;
 import static com.example.schedulenotification.refFB.reAuth;
 import static com.example.schedulenotification.refFB.refDB;
 import static com.example.schedulenotification.refFB.storage;
+import static com.example.schedulenotification.Classes.Listener.status;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -45,10 +47,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 
 import com.example.schedulenotification.Activities.CalendarActivities.CalendarView;
 import com.example.schedulenotification.Classes.Mission;
 import com.example.schedulenotification.Classes.Notification;
+import com.example.schedulenotification.ColorAdapter;
 import com.example.schedulenotification.R;
 import com.example.schedulenotification.Classes.User;
 import com.example.schedulenotification.databinding.ActivityMainBinding;
@@ -67,6 +71,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * An activity to create a mission, to review one and to it creates a notification whe the mission in finished
@@ -92,7 +97,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     /**
      * string array of the colors
      */
-    String[] colorsName = { "#FFE3D4", "#ECD5E3","#8FCACA","#ECEAE4", "#FFBF91", "#D4DD479", "#CCE2CB", "#FFFFB5"
+    String[] colorsName = { "#FFE3D4", "#ECD5E3","#8FCACA","#ECEAE4", "#FFBF91", "#D4D479", "#CCE2CB", "#FFFFB5"
             , "#97C1A9", "#D7EFEF", "#FCB9AA", "#C6DBDA", "#F6EAC2", "#E67C73"};
 
     User user;
@@ -133,19 +138,9 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     String title, description, e, color;
     ArrayList<String> images= new ArrayList<String>();
     /**
-     * if the user went to another activity to upload a picture- true
-     * else- false
-     */
-    boolean status= false;
-    /**
      * Adapter for the spinner.
      */
     ArrayAdapter<String> adp;
-    /**
-     * Adapter for listview- for the links of the images.
-     */
-    ArrayAdapter<String> adpLinks;
-
     /**
      * the activity adds the current date and time the mission was created and sorts with is in the firebase
      */
@@ -159,6 +154,10 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
      * for the custom toolbar in the activity
      */
     Toolbar tb;
+    /**
+     * to identify the right activity the user got here from.
+     */
+    int p;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -185,8 +184,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         colors.setOnItemClickListener(this);
         colors.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-        ArrayAdapter<String> adp = new ArrayAdapter<String>(this,
-                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,colorsName);
+        ColorAdapter adp = new ColorAdapter(getApplicationContext(),colorsName);
         colors.setAdapter(adp);
 
         tb = (Toolbar) findViewById(R.id.tb_cm);
@@ -211,30 +209,60 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         binding.savemission.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scheduleNotification();
 
                 if(t.getText().toString().equals("")){
                     Toast.makeText(CreateMission.this, "You must have a title", Toast.LENGTH_SHORT).show();
                 }
 
-                else{
-                    title= t.getText().toString();
-                    description= des.getText().toString();
+                else {
+                    title = t.getText().toString();
+                    description = des.getText().toString();
 
                     long time = getTime();
                     Date date = new Date(time);
 
                     DateFormat dateFormate = android.text.format.DateFormat.getLongDateFormat(getApplicationContext());
-                    DateFormat timeFormat =  android.text.format.DateFormat.getTimeFormat(getApplicationContext());
-
+                    DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(getApplicationContext());
+                    String s  = times.getText().toString();
                     e = dateFormate.format(date) + "--" + timeFormat.format(time);
+                    Mission m;
+                    if(p ==2 && !s.equals(e)){
+                        int index = s.indexOf(", Ends at:");
+                        s = s.substring(index+(", Ends at:").length());
+
+                        m = new Mission(title, importance, description, currentDate, s, category, color);
+                        Log.i("CM","mission updated");
+                        startActivity(new Intent(CreateMission.this, CheckList.class));
+                        finish();
+                    }
+                    else{
+                        scheduleNotification();
+                        /*adds a mission to the total missions for the Information page*/
+
+                        all = all +1;
+
+                        SharedPreferences settings = getSharedPreferences("MISSION_NUM", MODE_PRIVATE);
+                        SharedPreferences.Editor editorm = settings.edit();
+                        editorm.putInt("all", all);
+                        editorm.commit();
+
+                        status = false;
+
+                        m = new Mission(title, importance, description, currentDate, e, category,color);
 
 
-                    Mission m= new Mission(title, importance, description, currentDate, e, category);
-                    m.setimages(images);
-                    if(check == 1){
-                        SharedPreferences settings= getSharedPreferences("missionInfo", MODE_PRIVATE);
-                        if(title!=settings.getString("title", "a")){
+                        SharedPreferences settingsi = getSharedPreferences("INFO_NOTIF", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settingsi.edit();
+                        editor.putString("title", title);
+                        editor.putString("start", currentDate);
+                        editor.putString("end", e);
+                        editor.commit();
+
+                        m.setimages(images);
+                    }
+                    if (check == 1) {
+                        SharedPreferences settings = getSharedPreferences("missionInfo", MODE_PRIVATE);
+                        if (title != settings.getString("title", "a")) {
                             refDBUC.child(settings.getString("title", "a")).removeValue();
                         }
                     }
@@ -246,17 +274,12 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                     iGroup.clearCheck();
                     images.clear();
                     images.add("images");
+                    times.setText("...");
 
-                    Log.d("success","Mission Uploaded");
-                    //Toast.makeText(this, "Your mission has been uploaded😊", Toast.LENGTH_SHORT).show();
+                    Log.d("success", "Mission Uploaded");
                 }
             }
         });
-        if(getIntent().getIntExtra("check", 0) == 1) {
-            SharedPreferences settings = getSharedPreferences("INFO", MODE_PRIVATE);
-            binding.t.setText(settings.getString("title", "aaa"));
-            binding.des.setText(settings.getString("description", "bbb"));
-        }
 
         //the user will create a mission right now so we need the time and date for the present time
         Date currentTime = java.util.Calendar.getInstance().getTime();
@@ -265,6 +288,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
         currentDate = dateFormat.format(currentTime)+ "--" + timeFormat.format(currentTime);
     }
+
 
     /**
      * reading all the categories from the current user's root in the FireBase
@@ -305,102 +329,65 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
      *
      * (90% of the code is the same except the images ArrayList part.)
      *
-     * check=0 -> the user got back from Camera_or_Gallery Activity
-     * check=1-> the user got back to update a mission from CheckList Activity
+     * check=3 -> the user got back from Camera_or_Gallery Activity
+     * check=2-> the user got back to update a mission from CheckList Activity
+     * check = 4 -> the user got here to create a new mission
      */
     @Override
     protected void onResume() {
         super.onResume();
 
         Intent getI= getIntent();
-        if(getI.getIntExtra("path",-1) == 1){
 
-        }
-        status=getI.getBooleanExtra("status",false);
-        check= getI.getIntExtra("check", 3);
-        if(status){
-            if(!images.contains(getI.getStringExtra("way"))){
-                images.add(getI.getStringExtra("way"));
-            }
-
+        p = getI.getIntExtra("check", -1);
+        if ((p == 2) || (p == 3)){
+            /* came from CheckList activity- update mission
+            * or from Camera of gallery activity*/
             SharedPreferences settings= getSharedPreferences("missionInfo", MODE_PRIVATE);
-//the user went from checklist to here, so the mission might not be in the Shared Preference file
-            if(check == 1){
-                Query q = refDBUC.orderByChild("title").equalTo(settings.getString("title", "a"));
-                q.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot.exists()){
-                            for(DataSnapshot data : snapshot.getChildren()) {
-                                Mission m = data.getValue(Mission.class);
-                                //sets the title
-                                t.setText(m.getTitle());
-                                String e = m.getDueDate();
-                                String s = m.getOpenDate();
-                                //sets the start and end date.
-                                times.setText("Starts at:" + s + ", Ends at:" + e);
-                                //sets the importance
-                                switch(m.getImportance()){
-                                    case 0:
-                                        i0.setChecked(true); break;
-                                    case 1:
-                                        i1.setChecked(true); break;
-                                    case 2:
-                                        i2.setChecked(true);break;
-                                }
-                                //sets the description
-                                des.setText(m.getDescription());
-                                //sets the images
-                                adpLinks= new ArrayAdapter<String>(CreateMission.this,
-                                        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                                        m.getImages());
-                                links.setAdapter(adpLinks);
-                                //sets the catogory
-                                catS.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        catS.setSelection(m.getCategory());
-                                    }
-                                });
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-                images = getI.getStringArrayListExtra("images");
+            t.setText(settings.getString("title", "a"));
+            currentDate = settings.getString("start","000");
+            String e = settings.getString("end","000");
+            if(p == 2 && e.equals("Starts at:" + currentDate + ", Ends at:" + e)) {
+                times.setText(e);
             }
-            //got back from Camera or Gallery activity
             else{
-                t.setText(settings.getString("title", "a"));
-                currentDate = settings.getString("start","000");
-                String e = settings.getString("end","000");
                 times.setText("Starts at:" + currentDate + ", Ends at:" + e);
-                switch (settings.getInt("importance", -1)){
-                    case 0: i0.setChecked(true);break;
-                    case 1: i1.setChecked(true); break;
-                    case 2: i2.setChecked(true); break;
-                    case 3: iGroup.clearCheck(); break;
-                }
-                catS.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        catS.setSelection(settings.getInt("category", -1));
-                    }
-                });
-
-                des.setText(settings.getString("description","fff"));
-                images = getIntent().getStringArrayListExtra("way");
             }
-            //if the user got here from Camera or Gallery activity
+            switch (settings.getInt("importance", -1)){
+                case 0: i0.setChecked(true);break;
+                case 1: i1.setChecked(true); break;
+                case 2: i2.setChecked(true); break;
+                case 3: iGroup.clearCheck(); break;
+            }
+            catS.post(new Runnable() {
+                @Override
+                public void run() {
+                    catS.setSelection(settings.getInt("category", -1));
+                }
+            });
+            /*loading the images' links from the file*/
+            images.clear();
+            int size = settings.getInt("Status_size", 0);
+            for(int i=0;i<size;i++)
+            {
+                images.add(settings.getString("Status_" + i, null));
+            }
+            /*
+            if the user got back from Camera or Gallery Activity, you need to add the links to images.
+             */
+            if((p == 3) || (images.contains(getI.getStringExtra("way"))))
+            {
+               images.add(getI.getStringExtra("way"));
+            }
+            des.setText(settings.getString("description","fff"));
         }
-        //images.add(getIntent().getStringExtra("way"));
-        adpLinks= new ArrayAdapter<String>(this,
+        else{
+            images.clear();
+            images.add("images->");
+        }
+        ArrayAdapter<String> adp = new ArrayAdapter<String>(CreateMission.this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, images);
-        links.setAdapter(adpLinks);
+        links.setAdapter(adp);
     }
 
     /**
@@ -429,7 +416,9 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         editor.putString("description", des.getText().toString());
         editor.commit();
 
-        startActivity(new Intent(CreateMission.this, Camera_or_Gallery.class));
+        Intent pic1 = new Intent(CreateMission.this, Camera_or_Gallery.class);
+        pic1.putExtra("page", 1);
+        startActivity(pic1);
     }
 
     /**
@@ -516,6 +505,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
                     ImageView showpic = (ImageView) picture.findViewById(R.id.showpic1);
                     Button cancel = (Button) picture.findViewById(R.id.cancel);
+                    TextView name = (TextView) picture.findViewById(R.id.name);
 
                     StorageReference storageRef = storage.getReference();
 
@@ -528,6 +518,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                         public void onSuccess(byte[] bytes) {
                             Bitmap bMap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                             showpic.setImageBitmap(bMap);
+                            name.setText(getIntent().getStringExtra("name"));
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -565,7 +556,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     {
         Intent intent = new Intent(getApplicationContext(), Notification.class);
         String title = binding.t.getText().toString();
-        String message = binding.des.getText().toString();
+        String message = "Tap check if finished!";
 
         intent.putExtra(titleExtra, title);
         intent.putExtra(messageExtra, message);
@@ -579,11 +570,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         long time = getTime();
-        SharedPreferences settings = getSharedPreferences("INFO",MODE_PRIVATE);
-        SharedPreferences.Editor editor=settings.edit();
-        editor.putString("title", title);
-        editor.putString("description", message);
-        editor.commit();
+
         alarmManager.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 time,
@@ -605,14 +592,14 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         DateFormat timeFormat =  android.text.format.DateFormat.getTimeFormat(getApplicationContext());
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Notification Scheduled")
+                .setTitle("Notification Scheduled✅")
                 .setMessage("Title: " + title +
-                        "\nMessage: " + message +
+                        "\nDescription: " + description +
                         "\nAt: " + dateFormate.format(date) + " " + timeFormat.format(time))
                 .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(CreateMission.this, "Works!😁💻", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
                     }
                 });
 

@@ -14,5 +14,5 @@ public class refFB{
 
 
     public static FirebaseStorage storage = FirebaseStorage.getInstance();
-    public static StorageReference storageReference=storage.getReference();
+    public static StorageReference refStorage =storage.getReference();
 }

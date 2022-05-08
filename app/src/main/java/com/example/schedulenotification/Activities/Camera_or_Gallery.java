@@ -1,7 +1,8 @@
 package com.example.schedulenotification.Activities;
 
+import static android.app.PendingIntent.getActivity;
 import static com.example.schedulenotification.refFB.reAuth;
-import static com.example.schedulenotification.refFB.storageReference;
+import static com.example.schedulenotification.refFB.refStorage;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,7 +45,7 @@ import java.util.Date;
 
 public class Camera_or_Gallery extends AppCompatActivity {
 
-    ProgressDialog progressDialog;
+    private ProgressDialog progressDialog;
     TextView title;
     /**
      * Button that switches between open camera and open gallery
@@ -107,7 +108,7 @@ public class Camera_or_Gallery extends AppCompatActivity {
         ClickableSpan span = new ClickableSpan() {
             @Override
             public void onClick(@NonNull View view) {
-                btnS.setText("Camera");
+                btnS.setText("Open Camera");
                 s = false;
                 SwitchToCamera();
             }
@@ -125,7 +126,7 @@ public class Camera_or_Gallery extends AppCompatActivity {
         ClickableSpan span = new ClickableSpan() {
             @Override
             public void onClick(@NonNull View view) {
-                btnS.setText("Gallery");
+                btnS.setText("Open Gallery");
                 s = true;
                 switchToGallery();
             }
@@ -252,9 +253,8 @@ public class Camera_or_Gallery extends AppCompatActivity {
         switch (i) {
             case 1:
                 if (filePath != null) {
-                    progressDialog = new ProgressDialog(Camera_or_Gallery.this);
-                    progressDialog.setTitle("Uploading...");
-                    progressDialog.show();
+
+                    progressDialog = ProgressDialog.show(this, "", "Uplading...", true);
 
                     if (titlePic.getText().toString().equals("")) {
                         SharedPreferences settings = getSharedPreferences("count", MODE_PRIVATE);
@@ -273,20 +273,20 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     }
 
 
-                    StorageReference ref = storageReference.child(path);
+                    StorageReference ref = refStorage.child(path);
 
                     ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(
                                 UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
-                            Toast.makeText(Camera_or_Gallery.this, "Image Uploaded!!", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(Camera_or_Gallery.this, "Image Uploaded!!", Toast.LENGTH_SHORT).show();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(Camera_or_Gallery.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(Camera_or_Gallery.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -298,20 +298,28 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     });
                 }
 
-                Intent gi = new Intent(this, CreateMission.class);
-                gi.putExtra("way", path);
-                gi.putExtra("status", true);
-                gi.putExtra("check", 0);
-                gi.putExtra("name", s0);
-                startActivity(gi);
-                finish();
+                switch (getIntent().getIntExtra("page", -1)){
+                    case 1:
+                        Intent gi = new Intent(this, CreateMission.class);
 
+                        gi.putExtra("name", s0);
+                        gi.putExtra("check",3);
+                        gi.putExtra("way", path);
+                        startActivity(gi);
+                        finish();
+                        break;
+                    case 2:
+                        Intent si = new Intent(this, Information.class);
+                        si.putExtra("way", path);
+                        si.putExtra("check",3);
+                        startActivity(si);
+                        finish();
+                        break;
+
+                }
                 break;
             case 2:
-                progressDialog = new ProgressDialog(Camera_or_Gallery.this);
-                progressDialog.setTitle("Uploading...");
-                progressDialog.show();
-
+                progressDialog = ProgressDialog.show(this, "", "Uploading...", true);
 
                 if (titlePic.getText().toString().equals("")) {
                     SharedPreferences settings = getSharedPreferences("count", MODE_PRIVATE);
@@ -331,7 +339,7 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     s0 = titlePic.getText().toString();
                 }
 
-                UploadTask uploadTask = storageReference.child(path).putFile(photoUri);
+                UploadTask uploadTask = refStorage.child(path).putFile(photoUri);
 
 
                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -356,13 +364,25 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     }
                 });
 
-                Intent ci= new Intent(this, CreateMission.class);
-                ci.putExtra("way",path);
-                ci.putExtra("status",true);
-                ci.putExtra("check",0);
-                ci.putExtra("name",s0);
-                startActivity(ci);
-                finish();
+                switch (getIntent().getIntExtra("page", -1)){
+                    case 1:
+                        Intent ci = new Intent(this, CreateMission.class);
+
+                        ci.putExtra("name", s0);
+                        ci.putExtra("check",3);
+                        ci.putExtra("way", path);
+                        startActivity(ci);
+                        finish();
+                        break;
+                    case 2:
+                        Intent si = new Intent(this, Information.class);
+                        si.putExtra("way", path);
+                        si.putExtra("check",3);
+                        startActivity(si);
+                        finish();
+                        break;
+
+                }
 
                 break;
         }
@@ -390,10 +410,20 @@ public class Camera_or_Gallery extends AppCompatActivity {
         Intent i;
         switch (item.getItemId()){
             case R.id.back:
-                i = new Intent (this, CreateMission.class);
-                startActivity(i);
-                finish();
+                switch ((getIntent().getIntExtra("page",-1))){
+                    case 1:
+                        i = new Intent (this, CreateMission.class);
+                        startActivity(i);
+                        finish();
+                        break;
+                    case 2:
+                        i = new Intent (this, Information.class);
+                        startActivity(i);
+                        finish();
+                        break;
+                }
                 break;
+
             case R.id.i:
                 i = new Intent(this, About.class);
                 startActivity(i);

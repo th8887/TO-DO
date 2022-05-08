@@ -126,10 +126,10 @@ public class Authentication extends AppCompatActivity {
         ClickableSpan span = new ClickableSpan() {
             @Override
             public void onClick(@NonNull View view) {
-                title.setText("Register : 📝");
+                title.setText("Sign In : 📝");
                 n.setVisibility(View.VISIBLE);
                 p.setVisibility(View.VISIBLE);
-                ls.setText("Register");
+                ls.setText("Sign in");
                 register = false;
                 logOption();
             }

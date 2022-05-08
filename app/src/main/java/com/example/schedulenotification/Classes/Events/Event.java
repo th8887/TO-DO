@@ -1,5 +1,7 @@
 package com.example.schedulenotification.Classes.Events;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -9,15 +11,13 @@ import java.util.ArrayList;
  */
 public class Event {
     public static ArrayList<Event> eventList = new ArrayList<>();
-
+    public static ArrayList<Event> events = new ArrayList<>();
     /**
      * looks for the events in each date and then collects them into an ArrayList
      * @param date
      * @return
      */
     public static ArrayList<Event> eventsFormDate(LocalDate date){
-        ArrayList<Event> events = new ArrayList<>();
-
         for(Event event : eventList){
             if(event.getDate().equals(date)){
                 events.add(event);
@@ -52,7 +52,6 @@ public class Event {
         this.end = end;
         this.loc = loc;
         this.allDay = allDay;
-
     }
 
     public String getTitle() {
