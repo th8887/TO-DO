@@ -5,7 +5,7 @@
     <item
         android:id="@+id/i"
         android:title="Sort"
-        android:icon="@drawable/info"
+        android:icon="@drawable/ic_baseline_info_24"
         android:orderInCategory="100"
         app:showAsAction="always"
         />

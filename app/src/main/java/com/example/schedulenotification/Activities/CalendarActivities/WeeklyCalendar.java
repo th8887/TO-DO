@@ -1,6 +1,5 @@
 package com.example.schedulenotification.Activities.CalendarActivities;
 
-import static com.example.schedulenotification.Activities.CalendarActivities.CreateEvent.added;
 import static com.example.schedulenotification.CalendarHelpers.CalendarUtils.daysInWeekArray;
 import static com.example.schedulenotification.CalendarHelpers.CalendarUtils.monthYearFromDate;
 import static com.example.schedulenotification.CalendarHelpers.CalendarUtils.selectedDate;
@@ -11,19 +10,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
@@ -33,19 +29,15 @@ import com.example.schedulenotification.Activities.About;
 import com.example.schedulenotification.Activities.CheckList;
 import com.example.schedulenotification.Activities.CreateMission;
 import com.example.schedulenotification.Activities.Information;
-import com.example.schedulenotification.Activities.TimerForFocus;
+import com.example.schedulenotification.Activities.TimerBlock;
 import com.example.schedulenotification.CalendarHelpers.CalendarAdapter;
-import com.example.schedulenotification.Classes.Events.Event;
-import com.example.schedulenotification.Classes.Events.EventAdapter;
 import com.example.schedulenotification.R;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.List;
 
 public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter.OnItemClickListener, AdapterView.OnItemClickListener{
 
@@ -55,18 +47,18 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
     /**
      * An array for the events in the chosen day
      */
-    ArrayList<Event> dailyEvents ;
-    Stack<Event> dailyEvents1 = new Stack<Event>();
+    public static ArrayList<String> dailyEvents;
     /**
      * position form the dailyEvents array
      */
     int pos;
-    /**
-     * for the id of the calendar
-     */
-    String [] calendarID;
 
     Toolbar tb;
+
+    /**
+     * if an event was added, then the added event wont be added again in the weeklyCalendar activity
+     */
+    public static boolean added = false;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -86,7 +78,7 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
         eventsList.setOnItemClickListener(this);
         eventsList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-        getEvents(0);
+        //getEvents(0);
 
         setWeekView();
 
@@ -108,92 +100,41 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setEventAdapter() {
+        //getEvents(1);
+        String[] projection = new String[] { CalendarContract.Events.CALENDAR_ID, CalendarContract.Events.TITLE, CalendarContract.Events.DESCRIPTION, CalendarContract.Events.DTSTART, CalendarContract.Events.DTEND, CalendarContract.Events.ALL_DAY, CalendarContract.Events.EVENT_LOCATION };
 
-        if (!added){
-            dailyEvents = Event.eventsFormDate(selectedDate);
-            getEvents(1);
-            while(!dailyEvents1.isEmpty()){
-                dailyEvents.add(dailyEvents1.pop());
-            }
+        Calendar startTime = Calendar.getInstance();
+
+
+        startTime.set(selectedDate.getYear(), selectedDate.getMonthValue()-1, selectedDate.getDayOfMonth(),0,0,0);
+
+        Calendar endTime= Calendar.getInstance();
+        //endTime.add(Calendar.DATE, 1);
+        endTime.set(selectedDate.getYear(), selectedDate.getMonthValue()-1, selectedDate.getDayOfMonth(),23,59,59);
+
+        String selection = "(( " + CalendarContract.Events.DTSTART + " >= " + startTime.getTimeInMillis() + " ) AND ( " + CalendarContract.Events.DTSTART + " <= " + endTime.getTimeInMillis() + " ) AND ( deleted != 1 ))";
+        Cursor cursor = getApplicationContext().getContentResolver().query(CalendarContract.Events.CONTENT_URI, projection, selection, null, null);
+
+        List<String> events = new ArrayList<>();
+        ArrayList<String> dates = new ArrayList<String>();
+        if (cursor!=null&&cursor.getCount()>0&&cursor.moveToFirst()) {
+            do {
+                events.add(cursor.getString(1));
+                dates.add("Title: " + cursor.getString(1) +
+                        "\nDescription: " + cursor.getString(2) +
+                        "\nBegin: " + String.valueOf(new Date(Long.parseLong(cursor.getString(3))  * 1000L)) +
+                        "\nEnd: " +  String.valueOf(new Date(Long.parseLong(cursor.getString(4))  * 1000L)) +
+                        "\nLocation:" + cursor.getString(6) +
+                        "\nAll Day:" + cursor.getString(5));
+            } while ( cursor.moveToNext());
         }
-        else{
-            dailyEvents.add(Event.eventsFormDate(selectedDate).get(1));
 
-        }
-        EventAdapter ea = new EventAdapter(getApplicationContext(), dailyEvents);
-        eventsList.setAdapter(ea);
-    }
+        dailyEvents = dates;
 
-    /**
-     * a method that ges the events from google calendar
-     */
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void getEvents(int n) {
-        ContentResolver contentResolver = getContentResolver();
-        final Cursor cursor = contentResolver.query(CalendarContract.Calendars.CONTENT_URI,
-                (new String[]{CalendarContract.Calendars._ID, CalendarContract.Calendars.CALENDAR_DISPLAY_NAME}), null, null, null);
-
-        while (cursor.moveToNext()) {
-            final String _id = cursor.getString(0);
-            final String displayName = cursor.getString(1);
+        ArrayAdapter<String> adp = new ArrayAdapter<String>(this, androidx.preference.R.layout.support_simple_spinner_dropdown_item, events);
+        eventsList.setAdapter(adp);
 
 
-            if (displayName.equals("tshel403@gmail.com")) {
-                //Log.d("Cursor", "true");
-                calendarID = new String[]{_id};
-            }
-
-            Uri.Builder builder = CalendarContract.Instances.CONTENT_URI.buildUpon();
-
-            Calendar beginTime = Calendar.getInstance();
-            beginTime.set(selectedDate.getYear()
-                    , selectedDate.getMonthValue()-1
-                    , selectedDate.getDayOfMonth()
-                    , 8, 0);
-            long startMills = beginTime.getTimeInMillis();
-
-
-            ContentUris.appendId(builder, startMills);
-            ContentUris.appendId(builder, Long.MAX_VALUE);
-
-            Cursor eventCursor = contentResolver.query(builder.build(), new String[]{CalendarContract.Instances.TITLE,
-                            CalendarContract.Instances.BEGIN, CalendarContract.Instances.END, CalendarContract.Instances.DESCRIPTION, CalendarContract.Instances.EVENT_LOCATION, CalendarContract.Instances.ALL_DAY},
-                    CalendarContract.Instances.CALENDAR_ID + " = ?", calendarID, null);
-
-            while (eventCursor.moveToNext()) {
-                final String title = eventCursor.getString(0);
-                final Date begin = new Date(eventCursor.getLong(1));
-                final Date end = new Date(eventCursor.getLong(2));
-                final String description = eventCursor.getString(3);
-                final String location = eventCursor.getString(4);
-                final String allDay = eventCursor.getString(5);
-                boolean allday;
-
-                if (Integer.parseInt(allDay) == 1){
-                    allday = true;
-                }
-                else{
-                    allday = false;
-                }
-
-                Event e = new Event(title,
-                        begin.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                        String.valueOf(begin),
-                        String.valueOf(end),
-                        location,
-                        description,
-                        allday);
-                if (n == 0){
-                    dailyEvents1.add(e);
-                }
-                else{
-                    if (dailyEvents1.contains(e)){
-                        dailyEvents1.add(e);
-                    }
-                }
-                Log.d("Cursor", "Title: " + title + "\tDescription: " + description + "\tBegin: " + begin + "\tEnd: " + end + "\nLocation:" + location + "\nAll Day:" + allday);
-            }
-        }
     }
 
     /**
@@ -267,16 +208,9 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
         pos = position;
 
-        Event e = dailyEvents.get(pos);
-
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Scheduled Event")
-                .setMessage("Title: " + e.getTitle() +
-                        "\nDescription: " + e.getDes() +
-                        "\nAt: " + e.getStart() +
-                        "\nLocation:" + e.getLoc() +
-                        "\nAll Day:" + String.valueOf(e.isAllDay()));
-
+                .setTitle("Scheduled ")
+                .setMessage(dailyEvents.get(pos));
         AlertDialog ad = alertDialog.create();
         ad.show();
     }
@@ -309,7 +243,7 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
                 startActivity(i);
                 break;
             case R.id.ft:
-                i= new Intent(this, TimerForFocus.class);
+                i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;
             case R.id.ui:

@@ -1,4 +1,4 @@
-package com.example.schedulenotification;
+package com.example.schedulenotification.Adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -8,31 +8,24 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.example.schedulenotification.R;
+
+/**
+ * creates an adapter with colors for the spinner in CreateMission activity.
+ */
 public class ColorAdapter extends BaseAdapter {
 
     Context context;
     String colorList[];
     LayoutInflater inflter;
-    String [] names = {"light pink",
-            "light purple",
-            "ocean",
-            "light gray",
-            "orange",
-            "green",
-            "light green",
-            "light yellow",
-            "dark green",
-            "light blue",
-            "peach",
-            "gray blue",
-            "beige",
-            "pink"};
+    String [] names;
 
 
 
-    public ColorAdapter(Context applicationContext, String[] colorList) {
+    public ColorAdapter(Context applicationContext, String[] colorList, String [] names) {
         this.context = applicationContext;
         this.colorList = colorList;
+        this.names = names;
 
         inflter = (LayoutInflater.from(applicationContext));
     }
@@ -57,8 +50,8 @@ public class ColorAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup parent) {
         view = inflter.inflate(R.layout.color_cell, null);
         TextView colorName= (TextView) view.findViewById(R.id.colorName);
-        View shape = (View) view.findViewById(R.id.color_blob);
-        shape.setBackgroundColor(Color.parseColor(colorList[i]));
+        TextView shape = (TextView) view.findViewById(R.id.color_blob);
+        shape.setTextColor(Color.parseColor(colorList[i]));
         colorName.setText(names[i]);
 
         return view;

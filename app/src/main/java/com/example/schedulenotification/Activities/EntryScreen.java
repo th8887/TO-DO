@@ -1,6 +1,4 @@
-package com.example.schedulenotification;
-
-import static com.example.schedulenotification.refFB.reAuth;
+package com.example.schedulenotification.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,16 +7,23 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
-import com.example.schedulenotification.Activities.Authentication;
-import com.example.schedulenotification.Activities.Information;
+import com.example.schedulenotification.R;
 
 /**
  * A screen with the apps logo that is shown for three seconds before the app starts.
  */
 public class EntryScreen extends AppCompatActivity {
-
+    /**
+     * the time that the entry screen will stay open (1000 = 1 sec)
+     */
     private static int SPLASH_TIME_OUT = 2000;
 
+    /**
+     * creates the entry screen with the logo and then closes it, and takes the user to the right activity page
+     * (A new user/ didn't save his information-> Authentication page
+     * An old user who saved his information in the app-> Information page)
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

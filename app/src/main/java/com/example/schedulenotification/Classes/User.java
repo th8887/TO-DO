@@ -7,10 +7,17 @@ public class User {
     private String phone;
     private String uID;
     private String email;
+    /**
+     * true - connected to the app
+     * false - not connected to the app
+     */
     private boolean active;
     private ArrayList<String> category;
+    private int complete;
+    private int all;
 
-    public User(String name, String e, String phone, String uID, boolean active) {
+    public User(String name, String e,
+                String phone, String uID, boolean active) {
         this.name=name;
         this.phone = phone;
         this.uID= uID;
@@ -18,6 +25,8 @@ public class User {
         this.active= active;
         this.category= new ArrayList<>();
         category.add("Category");
+        this.all = 0;
+        this.complete = 0;
     }
 
     public User(){
@@ -71,6 +80,14 @@ public class User {
         this.category = category;
     }
 
+    public int getComplete() { return complete; }
+
+    public void setComplete(int complete) { this.complete = complete; }
+
+    public int getAll() { return all; }
+
+    public void setAll(int all) { this.all = all; }
+
     @Override
     public String toString() {
         return "User{" +
@@ -78,8 +95,10 @@ public class User {
                 ", phone='" + phone + '\'' +
                 ", uID='" + uID + '\'' +
                 ", email='" + email + '\'' +
-                ", active=" + active +
-                ", category=" + category +
+                ", active=" + active +'\'' +
+                ", category=" + category +'\'' +
+                ",complete=" + complete + '\'' +
+                ",all=" + all +
                 '}';
     }
 }

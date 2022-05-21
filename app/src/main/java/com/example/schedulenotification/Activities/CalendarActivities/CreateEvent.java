@@ -25,8 +25,7 @@ import com.example.schedulenotification.Activities.About;
 import com.example.schedulenotification.Activities.CheckList;
 import com.example.schedulenotification.Activities.CreateMission;
 import com.example.schedulenotification.Activities.Information;
-import com.example.schedulenotification.Activities.TimerForFocus;
-import com.example.schedulenotification.Classes.Events.Event;
+import com.example.schedulenotification.Activities.TimerBlock;
 import com.example.schedulenotification.R;
 
 import java.text.DateFormat;
@@ -35,10 +34,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class CreateEvent extends AppCompatActivity {
-    /**
-     * if an event was added, then the added event wont be added again in the weeklyCalendar activity
-     */
-    public static boolean added = false;
 
     EditText title, desEvent, locEvent;
     TextView startEvent, endEvent;
@@ -186,34 +181,6 @@ public class CreateEvent extends AppCompatActivity {
             else
                 a=false;
 
-            String t = title.getText().toString();
-            String l = locEvent.getText().toString();
-            String des = desEvent.getText().toString();
-            String eS = endEvent.getText().toString();
-            String sS = startEvent.getText().toString();
-
-            Event e;
-
-            if(!desEvent.getText().toString().isEmpty()) {
-                if (locEvent.getText().toString().isEmpty()){
-                    e = new Event(t, fdate, sS, eS, "None", des, a);
-                }
-                else{
-                    e = new Event(t, fdate, sS, eS, l, des, a);
-                }
-
-            }
-            else {
-                if (locEvent.getText().toString().isEmpty()){
-                    e = new Event(t, fdate, sS, eS, "None", a);
-                }
-                else{
-                    e = new Event(t, fdate, sS, eS, l, a);
-                }
-
-            }
-            Event.eventList.add(e);
-
             spiltDates(day1, month1, year1, hour1, min1, date1,time1, 1);
             spiltDates(day2, month2, year2, hour2, min2, date2, time2, 2);
 
@@ -231,7 +198,7 @@ public class CreateEvent extends AppCompatActivity {
             info.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
                     endTime.getTimeInMillis());
             info.putExtra(CalendarContract.Events.ALL_DAY, a);
-            added = true;
+            WeeklyCalendar.added = true;
             startActivity(info);
             finish();
         }
@@ -298,7 +265,7 @@ public class CreateEvent extends AppCompatActivity {
                 startActivity(i);
                 break;
             case R.id.ft:
-                i= new Intent(this, TimerForFocus.class);
+                i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;
             case R.id.ui:

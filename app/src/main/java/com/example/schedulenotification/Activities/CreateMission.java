@@ -2,6 +2,7 @@ package com.example.schedulenotification.Activities;
 
 import static android.content.ContentValues.TAG;
 import static com.example.schedulenotification.Activities.Information.all;
+import static com.example.schedulenotification.Activities.Information.complete;
 import static com.example.schedulenotification.Classes.Notification.channelID;
 import static com.example.schedulenotification.Classes.Notification.messageExtra;
 import static com.example.schedulenotification.Classes.Notification.notificationID;
@@ -47,12 +48,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
-import androidx.preference.PreferenceManager;
 
 import com.example.schedulenotification.Activities.CalendarActivities.CalendarView;
 import com.example.schedulenotification.Classes.Mission;
 import com.example.schedulenotification.Classes.Notification;
-import com.example.schedulenotification.ColorAdapter;
+import com.example.schedulenotification.Adapters.ColorAdapter;
 import com.example.schedulenotification.R;
 import com.example.schedulenotification.Classes.User;
 import com.example.schedulenotification.databinding.ActivityMainBinding;
@@ -67,11 +67,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * An activity to create a mission, to review one and to it creates a notification whe the mission in finished
@@ -89,7 +87,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     ListView links;
     RadioButton i0,i1,i2;
     RadioGroup iGroup;
-    ListView colors;
+    Spinner colors;
     /**
      * times- for the start of a mission and the end of one
      */
@@ -99,6 +97,8 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
      */
     String[] colorsName = { "#FFE3D4", "#ECD5E3","#8FCACA","#ECEAE4", "#FFBF91", "#D4D479", "#CCE2CB", "#FFFFB5"
             , "#97C1A9", "#D7EFEF", "#FCB9AA", "#C6DBDA", "#F6EAC2", "#E67C73"};
+
+    String [] names = {"","","","","","","","","","","","","",""};
 
     User user;
     /**
@@ -121,14 +121,12 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
     /**
      * params for a new Mission.
-     * @param- oD- opendate
-     * @paran- dD- dueDate
-     * @param- oT- openTime
-     * @param- dT- dueTime
+     * @param e- end of mission
      * @param- importance:
      *          0-very important
      *          1-less important
      *          2-not important
+     * @param category- takes the index of the chosen category.
      */
     int category;
     /**
@@ -138,7 +136,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     String title, description, e, color;
     ArrayList<String> images= new ArrayList<String>();
     /**
-     * Adapter for the spinner.
+     * Adapter for the spinner of the categories.
      */
     ArrayAdapter<String> adp;
     /**
@@ -148,7 +146,6 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     /**
      * in order to use the schedules notification i learned online
      */
-
     private ActivityMainBinding binding;
     /**
      * for the custom toolbar in the activity
@@ -158,6 +155,10 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
      * to identify the right activity the user got here from.
      */
     int p;
+    /**
+     * @param colorPos- the index of the chosen color in the spinner.
+     */
+    int colorPos;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -179,13 +180,12 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
         times = (TextView) findViewById(R.id.times);
 
-        //colors for the list of colors-> check the custom listView
-        colors = (ListView) findViewById(R.id.colors);
-        colors.setOnItemClickListener(this);
-        colors.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        colors = (Spinner) findViewById(R.id.colors);
 
-        ColorAdapter adp = new ColorAdapter(getApplicationContext(),colorsName);
-        colors.setAdapter(adp);
+        ColorAdapter adpS = new ColorAdapter(this,colorsName, names);
+        colors.setAdapter(adpS);
+        colors.setOnItemSelectedListener(this);
+
 
         tb = (Toolbar) findViewById(R.id.tb_cm);
         setSupportActionBar(tb);
@@ -241,10 +241,11 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
                         all = all +1;
 
-                        SharedPreferences settings = getSharedPreferences("MISSION_NUM", MODE_PRIVATE);
-                        SharedPreferences.Editor editorm = settings.edit();
-                        editorm.putInt("all", all);
-                        editorm.commit();
+                        User u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                        u0.setAll(all);
+                        u0.setComplete(complete);
+                        u0.setCategory(c);
+                        refDB.child(Information.uid).setValue(u0);
 
                         status = false;
 
@@ -311,7 +312,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                     c.add("category->");
                 }
                 adp = new ArrayAdapter<String>(CreateMission.this,
-                        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                        androidx.preference.R.layout.support_simple_spinner_dropdown_item,
                         c);
                 catS.setAdapter(adp);
             }
@@ -365,6 +366,19 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                     catS.setSelection(settings.getInt("category", -1));
                 }
             });
+            //in order to get the right index of the chosen color
+            int ci= 0;
+            while (!settings.getString("color","-1").equals(colorsName[ci])){
+                ci++;
+            }
+            int finalCi = ci;
+            colors.post(new Runnable() {
+                @Override
+                public void run() {
+                    catS.setSelection(finalCi);
+                }
+            });
+
             /*loading the images' links from the file*/
             images.clear();
             int size = settings.getInt("Status_size", 0);
@@ -386,7 +400,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
             images.add("images->");
         }
         ArrayAdapter<String> adp = new ArrayAdapter<String>(CreateMission.this,
-                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, images);
+                androidx.preference.R.layout.support_simple_spinner_dropdown_item, images);
         links.setAdapter(adp);
     }
 
@@ -414,6 +428,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         editor.putInt("importance", importance);
         editor.putInt("category", category);
         editor.putString("description", des.getText().toString());
+        editor.putString("color", color);
         editor.commit();
 
         Intent pic1 = new Intent(CreateMission.this, Camera_or_Gallery.class);
@@ -423,16 +438,24 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
     /**
      *  collects the number of the category the user chose.
-     * @param parent
+     * @param par
      * @param v
      * @param pos
      * @param rowid
      */
     @Override
-    public void onItemSelected(AdapterView<?> parent, View v, int pos, long rowid)
+    public void onItemSelected(AdapterView<?> par, View v, int pos, long rowid)
     {
-        if(!(category!=0)) {
-            category = pos;
+        switch(par.getId()){
+            case R.id.catS:
+                if (!(category != 0)) {
+                    category = pos;
+                }
+                break;
+            case R.id.colors:
+                color = colorsName[pos];
+                colorPos = pos;
+                break;
         }
     }
 
@@ -464,12 +487,15 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                 c.add(n);
 
                 ArrayAdapter<String> adp2= new ArrayAdapter<String>(CreateMission.this
-                        , androidx.appcompat.R.layout.support_simple_spinner_dropdown_item
+                        , androidx.preference.R.layout.support_simple_spinner_dropdown_item
                         ,c);
                 catS.setAdapter(adp2);
 
                 User newU= new User(name,email,phone,uID,a);
                 newU.setCategory(c);
+                newU.setComplete(complete);
+                newU.setAll(all);
+                Information.category.add(n);
                 refDB.child(uID).setValue(newU);
 
 
@@ -668,7 +694,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                 startActivity(i);
                 break;
             case "Focus Timer⏱️":
-                i= new Intent(this, TimerForFocus.class);
+                i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;
             case "User's Information🔎":

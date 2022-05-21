@@ -7,13 +7,14 @@ public class Mission {
     private boolean active; //true- completed. false- yet complete.
     private int importance;//0- דחוף, 1-רגיל, 2- לא דחוף.
     private String description;
-    private String openDate; //yyyy/mm/dd/hour/min
-    private String dueDate;//yyyy/mm/dd/hour/min
-    private int category;//from the index.
+    private String openDate; //dd MM yyyy-hh:mm
+    private String dueDate;//dd MM yyyy-hh:mm
+    private int category;//the index of the chosen category from the list
     private ArrayList<String> images;//links of the images.
     private String color;//color chosen for the mission
 
-    public Mission(String title, int importance, String description, String openDate,
+    public Mission(String title, int importance,
+                   String description, String openDate,
                    String dueDate, int category, String color){
         this.title=title;
         this.importance=importance;

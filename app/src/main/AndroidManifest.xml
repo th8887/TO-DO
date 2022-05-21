@@ -36,7 +36,7 @@
             android:name=".Activities.About"
             android:exported="false" />
         <activity
-            android:name=".EntryScreen"
+            android:name=".Activities.EntryScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,7 +45,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.TimerForFocus"
+            android:name=".Activities.TimerBlock"
             android:exported="false"
         />
         <activity

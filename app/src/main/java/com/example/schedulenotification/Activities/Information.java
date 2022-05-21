@@ -3,10 +3,9 @@ package com.example.schedulenotification.Activities;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import static com.example.schedulenotification.Activities.CreateMission.refDBC;
-import static com.example.schedulenotification.Activities.CreateMission.refDBUC;
 import static com.example.schedulenotification.refFB.reAuth;
 import static com.example.schedulenotification.refFB.refDB;
+import static com.example.schedulenotification.refFB.refStorage;
 import static com.example.schedulenotification.refFB.storage;
 
 import androidx.annotation.NonNull;
@@ -16,14 +15,15 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -36,7 +36,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -46,7 +45,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.schedulenotification.Activities.CalendarActivities.CalendarView;
-import com.example.schedulenotification.Classes.Mission;
 import com.example.schedulenotification.R;
 import com.example.schedulenotification.Classes.User;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -56,7 +54,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 
@@ -71,15 +71,27 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     ListView categories;
     TextView showCom;
 
-    String name, email, uid,phone;
+    public static String name, email, uid,phone;
 
-    ArrayList<String> category;
-    //for the position of the chosen item in the Array List.
+    public static ArrayList<String> category;
+    /**
+     * @param pos-for the position of the chosen item in the Array List.
+     */
     int pos;
 
     User user;
 
     Toolbar tb;
+    /**
+     * @param use- the use for the profile: with camera or gallery.
+     *           1=Camera
+     *           2=Gallery
+     */
+    int use;
+
+    Uri selectedImage;
+
+    Bundle extras;
 
     @SuppressLint("ResourceType")
     @Override
@@ -105,18 +117,15 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         setSupportActionBar(tb);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        SharedPreferences settings = getSharedPreferences("MISSION_NUM", MODE_PRIVATE);
-        complete = settings.getInt("complete", -1);
-        all = settings.getInt("all", -2);
 
-        showCom.setText("Completed Missions:" +
-                "\n" + complete + "/" + all);
         checkPermission(42, Manifest.permission.READ_CALENDAR,
                 Manifest.permission.WRITE_CALENDAR,
                 Manifest.permission.INTERNET,
                 Manifest.permission.CAMERA,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.SCHEDULE_EXACT_ALARM);
+
+        Toast.makeText(this, "If you change things, make sure to press update connect!", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -141,9 +150,16 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                 for(DataSnapshot data : dS.getChildren()) {
                     user = data.getValue(User.class);
                     n.setText(user.getName());
+                    name = user.getName();
                     p.setText(user.getPhone());
+                    phone = user.getPhone();
 
                     category = user.getCategory();
+
+                    complete = user.getComplete();
+                    all = user.getAll();
+
+                    showCom.setText("Completed Missions: " + complete + "/" + all);
 
                     ArrayAdapter<String> adp = new ArrayAdapter<String>(Information.this,
                             androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, category);
@@ -181,6 +197,29 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         SharedPreferences settings = getSharedPreferences("PREFS_NAME", MODE_PRIVATE);
         Boolean isChecked = settings.getBoolean("stayConnect", false);
         cBconnectview.setChecked(isChecked);
+
+        if (!(getIntent().getStringExtra("way")== null)){
+            StorageReference storageRef = storage.getReference();
+
+            StorageReference imageRef = storageRef.child(getIntent().getStringExtra("way"));
+
+            final long ONE_MEGABYTE = 1024 * 1024;
+
+            imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Bitmap bMap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    profile.setImageBitmap(bMap);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(Information.this, "not Working.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+
     }
 
     /**
@@ -193,12 +232,18 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         startActivity(pic2);
      */
     public void pickPic(View view) {
+        Intent pic2 = new Intent(this, Camera_or_Gallery.class);
+        pic2.putExtra("page", 2);
+        startActivity(pic2);
+
+        /*
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle("Pick Camera or Gallery:");
         adb.setCancelable(true);
         adb.setPositiveButton("Camera", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                use=1;
                 Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(takePicture, 0);
             }
@@ -206,6 +251,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         adb.setNegativeButton("Gallery", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                use=2;
                 Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(pickPhoto , 1);
@@ -213,6 +259,8 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         });
         AlertDialog ad = adb.create();
         ad.show();
+
+         */
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -220,7 +268,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         switch(requestCode) {
             case 0:
                 if (resultCode == RESULT_OK) {
-                    Bundle extras = data.getExtras();
+                    extras = data.getExtras();
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
                     profile.setImageBitmap(imageBitmap);
                 }
@@ -228,7 +276,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                 break;
             case 1:
                 if(resultCode == RESULT_OK){
-                    Uri selectedImage = data.getData();
+                    selectedImage = data.getData();
                     profile.setImageURI(selectedImage);
                 }
                 break;
@@ -239,8 +287,16 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         phone= p.getText().toString();
         name = n.getText().toString();
         email = e.getText().toString();
-        User u2 = new User(name,email,phone, uid,false);
+
+        String s = showCom.getText().toString();
+        s=s.substring(20);
+        complete = Integer.parseInt(s.substring(0,1));
+        all = Integer.parseInt(s.substring(2));
+
+        User u2 = new User(name,email,phone, uid,true);
         u2.setCategory(category);
+        u2.setComplete(complete);
+        u2.setAll(all);
         refDB.child(uid).setValue(u2);
 
         Toast.makeText(this, "Information Updated!", Toast.LENGTH_SHORT).show();
@@ -390,7 +446,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                 startActivity(i);
                 break;
             case "Focus Timer⏱️":
-                i= new Intent(this, TimerForFocus.class);
+                i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;
         }

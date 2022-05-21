@@ -4,13 +4,15 @@ import static com.example.schedulenotification.Activities.CreateMission.refDBC;
 import static com.example.schedulenotification.Activities.CreateMission.refDBUC;
 import static com.example.schedulenotification.Activities.Information.all;
 import static com.example.schedulenotification.Activities.Information.complete;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import static com.example.schedulenotification.refFB.refDB;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,11 +20,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.schedulenotification.Activities.CalendarActivities.CalendarView;
 import com.example.schedulenotification.Classes.Mission;
+import com.example.schedulenotification.Classes.User;
 import com.example.schedulenotification.R;
 import com.example.schedulenotification.databinding.ActivityCheckListBinding;
 import com.google.firebase.database.DataSnapshot;
@@ -40,7 +45,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
 
     ListView titles;
 
-    ArrayList<String> title_Mission= new ArrayList<String>();
+    ArrayList<Spannable> title_Mission= new ArrayList<Spannable>();
     public static ArrayList<Mission> missions= new ArrayList<Mission>();
 
     Mission m;
@@ -78,8 +83,9 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
 
         titles.setOnItemClickListener(this);
         titles.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        //titles.setOnCreateContextMenuListener(this);
+        registerForContextMenu(titles);
 
-        titles.setOnCreateContextMenuListener(this);
         int mission = getIntent().getIntExtra("check",-1);
 
         refDBUC.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -87,6 +93,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
             public void onDataChange(@NonNull DataSnapshot dS) {
                 title_Mission.clear();
                 missions.clear();
+                ArrayList<Spannable> title0 = new ArrayList<Spannable>();
                 for (DataSnapshot data : dS.getChildren()) {
                     Mission mTmp = data.getValue(Mission.class);
                         SharedPreferences settingsi = getSharedPreferences("INFO_NOTIF",MODE_PRIVATE);
@@ -101,19 +108,26 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                             while(i<missions.size()&& !m.equals(missions.get(i))){
                                 i++;
                             }
-                            ArrayAdapter <String> adp= new ArrayAdapter<String>(CheckList.this,
-                                    androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
-                            titles.setAdapter(adp);
-                            Toast.makeText(CheckList.this, "Works!😁", Toast.LENGTH_SHORT).show();
+
+                            //Toast.makeText(CheckList.this, "Works!😁", Toast.LENGTH_SHORT).show();
                         }
                     else {
-                        title_Mission.add(mTmp.getTitle());
+                        Spannable WordtoSpan = new SpannableString("● "+ mTmp.getTitle());
+                        if (mTmp.getColor() == null){
+                            WordtoSpan.setSpan(new ForegroundColorSpan(Color.BLACK), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        else {
+                            WordtoSpan.setSpan(new ForegroundColorSpan(Color.parseColor(mTmp.getColor())), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        title_Mission.add(WordtoSpan);
                         missions.add(mTmp);
                     }
                 }
-                ArrayAdapter<String> adp = new ArrayAdapter<String>(CheckList.this,
+                ArrayAdapter<Spannable> adp = new ArrayAdapter<Spannable>(CheckList.this,
                         androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
                 titles.setAdapter(adp);
+
+
             }
 
             @Override
@@ -131,17 +145,20 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
+
         if (v.getId() == R.id.titles) {
+
             ListView lv = (ListView) v;
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
-            String s = (String) lv.getItemAtPosition(acmi.position);
+            Spannable s = (Spannable) lv.getItemAtPosition(acmi.position);
 
             int i = 0;
             while ((i < title_Mission.size()) && (!s.equals(title_Mission.get(i)))) {
                 i++;
+            }
+            m = missions.get(i);
         }
-        m = missions.get(i);
-        }
+
         if(!b){
 
             menu.add("Check Mission");
@@ -151,7 +168,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
         }
         else{
             menu.add("Un-Check Mission");
-            menu.add("Delete");
+            menu.add("Delete Mission");
             menu.add("Cancel");
         }
     }
@@ -164,19 +181,23 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        ArrayAdapter <String> adp;
+        ArrayAdapter<Spannable> adp;
         int i;
 
-        SharedPreferences settings = getSharedPreferences("MISSION_NUM", MODE_PRIVATE);
-        SharedPreferences.Editor editorm = settings.edit();
+        User u0;
 
         if (!b) {
             switch (item.getTitle().toString()) {
                 case "Check Mission":
                     /*adds the completed mission to the number of total completed missions*/
                     complete = complete + 1;
-                    editorm.putInt("complete", complete);
-                    editorm.commit();
+
+                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                    u0.setComplete(complete);
+                    u0.setAll(all);
+                    u0.setCategory(Information.category);
+                    refDB.child(Information.uid).setValue(u0);
+
                     refDBUC.child(m.getTitle()).removeValue();
                     m.setActive(true);
                     refDBC.child(m.getTitle()).setValue(m);
@@ -187,10 +208,11 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     }
                     missions.remove(i);
                     title_Mission.remove(i);
-                    adp = new ArrayAdapter<String>(CheckList.this,
+
+                    adp = new ArrayAdapter<Spannable>(CheckList.this,
                             androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
                     titles.setAdapter(adp);
-                    Toast.makeText(this, "Works!😁", Toast.LENGTH_SHORT).show();
+
                     break;
                 case "Update Mission":
                     Intent si = new Intent(CheckList.this, CreateMission.class);
@@ -208,6 +230,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     editor.putInt("importance", m.getImportance());
                     editor.putInt("category", m.getCategory());
                     editor.putString("description", m.getDescription());
+                    editor.putString("color", m.getColor());
                     editor.putInt("Status_size", m.getImages().size());
 
                     for (int t = 0; t < m.getImages().size(); t++) {
@@ -225,8 +248,11 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
 
                     all = all -1;
 
-                    editorm.putInt("all", all);
-                    editorm.commit();
+                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                    u0.setAll(all);
+                    u0.setComplete(complete);
+                    u0.setCategory(Information.category);
+                    refDB.child(Information.uid).setValue(u0);
 
 
                     i = 0;
@@ -235,9 +261,13 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     }
                     missions.remove(i);
                     title_Mission.remove(i);
-                    adp = new ArrayAdapter<String>(CheckList.this,
+
+
+                    adp = new ArrayAdapter<Spannable>(CheckList.this,
                             androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
                     titles.setAdapter(adp);
+
+
                     break;
                 case "Cancel":
                     closeContextMenu();
@@ -252,8 +282,11 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     /*minus the completed mission to the number of total completed missions*/
                     complete = complete - 1;
 
-                    editorm.putInt("complete", complete);
-                    editorm.commit();
+                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                    u0.setComplete(complete);
+                    u0.setAll(all);
+                    u0.setCategory(Information.category);
+                    refDB.child(Information.uid).setValue(u0);
 
                     refDBC.child(m.getTitle()).removeValue();
                     m.setActive(true);
@@ -265,10 +298,11 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     }
                     missions.remove(i);
                     title_Mission.remove(i);
-                    adp = new ArrayAdapter<String>(CheckList.this,
+
+                    adp = new ArrayAdapter<Spannable>(CheckList.this,
                             androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
                     titles.setAdapter(adp);
-                    Toast.makeText(this, "Works!😁", Toast.LENGTH_SHORT).show();
+
                     break;
                 case "Delete Mission":
                     refDBUC.child(m.getTitle()).removeValue();
@@ -276,9 +310,11 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     all = all - 1;
                     complete = complete - 1;
 
-                    editorm.putInt("all", all);
-                    editorm.putInt("complete", complete);
-                    editorm.commit();
+                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                    u0.setComplete(complete);
+                    u0.setAll(all);
+                    u0.setCategory(Information.category);
+                    refDB.child(Information.uid).setValue(u0);
 
 
                     i = 0;
@@ -287,9 +323,11 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     }
                     missions.remove(i);
                     title_Mission.remove(i);
-                    adp = new ArrayAdapter<String>(CheckList.this,
+
+                    adp = new ArrayAdapter<Spannable>(CheckList.this,
                             androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
                     titles.setAdapter(adp);
+
                     break;
                 case "Cancel":
                     closeContextMenu();
@@ -329,12 +367,22 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                         missions.clear();
                         for (DataSnapshot data : dS.getChildren()) {
                             Mission mTmp = data.getValue(Mission.class);
-                            title_Mission.add(mTmp.getTitle());
+
+                            Spannable WordtoSpan = new SpannableString("● "+ mTmp.getTitle());
+                            if (mTmp.getColor() == null){
+                                WordtoSpan.setSpan(new ForegroundColorSpan(Color.BLACK), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                            else {
+                                WordtoSpan.setSpan(new ForegroundColorSpan(Color.parseColor(mTmp.getColor())), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                            title_Mission.add(WordtoSpan);
                             missions.add(mTmp);
                         }
-                        ArrayAdapter<String> adp = new ArrayAdapter<String>(CheckList.this,
+
+                        ArrayAdapter<Spannable> adp = new ArrayAdapter<Spannable>(CheckList.this,
                                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
                         titles.setAdapter(adp);
+
                     }
 
                     @Override
@@ -343,26 +391,68 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                 });
                 break;
             case R.id.priority:
-                Query q = refDBUC.orderByChild("importance");
-                q.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dS) {
-                        title_Mission.clear();
-                        missions.clear();
-                        for (DataSnapshot data : dS.getChildren()) {
-                            Mission mTmp = data.getValue(Mission.class);
-                            title_Mission.add(mTmp.getTitle());
-                            missions.add(mTmp);
-                        }
-                        ArrayAdapter<String> adp = new ArrayAdapter<String>(CheckList.this,
-                                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
-                        titles.setAdapter(adp);
-                    }
+                if(!b) {
+                    Query q = refDBUC.orderByChild("importance");
+                    q.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dS) {
+                            title_Mission.clear();
+                            missions.clear();
+                            for (DataSnapshot data : dS.getChildren()) {
+                                Mission mTmp = data.getValue(Mission.class);
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                    }
-                });
+                                Spannable WordtoSpan = new SpannableString("● " + mTmp.getTitle());
+                                if (mTmp.getColor() == null) {
+                                    WordtoSpan.setSpan(new ForegroundColorSpan(Color.BLACK), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                } else {
+                                    WordtoSpan.setSpan(new ForegroundColorSpan(Color.parseColor(mTmp.getColor())), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                                title_Mission.add(WordtoSpan);
+                                missions.add(mTmp);
+                            }
+
+                            ArrayAdapter<Spannable> adp = new ArrayAdapter<Spannable>(CheckList.this,
+                                    androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
+                            titles.setAdapter(adp);
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                        }
+                    });
+                }
+                else{
+                    Query q = refDBC.orderByChild("importance");
+                    q.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dS) {
+                            title_Mission.clear();
+                            missions.clear();
+                            for (DataSnapshot data : dS.getChildren()) {
+                                Mission mTmp = data.getValue(Mission.class);
+
+                                Spannable WordtoSpan = new SpannableString("● " + mTmp.getTitle());
+                                if (mTmp.getColor() == null) {
+                                    WordtoSpan.setSpan(new ForegroundColorSpan(Color.BLACK), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                } else {
+                                    WordtoSpan.setSpan(new ForegroundColorSpan(Color.parseColor(mTmp.getColor())), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                                title_Mission.add(WordtoSpan);
+                                missions.add(mTmp);
+                            }
+
+                            ArrayAdapter<Spannable> adp = new ArrayAdapter<Spannable>(CheckList.this,
+                                    androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
+                            titles.setAdapter(adp);
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                        }
+                    });
+                }
                 break;
             case R.id.uncomplete:
                 b = false;
@@ -373,10 +463,19 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                         missions.clear();
                         for (DataSnapshot data : dS.getChildren()) {
                             Mission mTmp = data.getValue(Mission.class);
-                            title_Mission.add(mTmp.getTitle());
+
+                            Spannable WordtoSpan = new SpannableString("● "+ mTmp.getTitle());
+                            if (mTmp.getColor() == null){
+                                WordtoSpan.setSpan(new ForegroundColorSpan(Color.BLACK), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                            else {
+                                WordtoSpan.setSpan(new ForegroundColorSpan(Color.parseColor(mTmp.getColor())), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                            title_Mission.add(WordtoSpan);
                             missions.add(mTmp);
                         }
-                        ArrayAdapter<String> adp = new ArrayAdapter<String>(CheckList.this,
+
+                        ArrayAdapter<Spannable> adp = new ArrayAdapter<Spannable>(CheckList.this,
                                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, title_Mission);
                         titles.setAdapter(adp);
                     }
@@ -391,7 +490,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                 startActivity(i);
                 break;
             case R.id.ft:
-                i= new Intent(this, TimerForFocus.class);
+                i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;
             case R.id.ui:

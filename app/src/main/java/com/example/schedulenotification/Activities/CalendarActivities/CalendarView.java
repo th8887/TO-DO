@@ -17,18 +17,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.schedulenotification.Activities.About;
 import com.example.schedulenotification.Activities.CheckList;
 import com.example.schedulenotification.Activities.CreateMission;
 import com.example.schedulenotification.Activities.Information;
-import com.example.schedulenotification.Activities.TimerForFocus;
+import com.example.schedulenotification.Activities.TimerBlock;
 import com.example.schedulenotification.CalendarHelpers.CalendarAdapter;
 import com.example.schedulenotification.R;
 
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -159,7 +158,7 @@ public class CalendarView extends AppCompatActivity implements CalendarAdapter.O
                 startActivity(i);
                 break;
             case R.id.ft:
-                i= new Intent(this, TimerForFocus.class);
+                i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;
             case R.id.ui:

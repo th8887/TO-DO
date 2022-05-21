@@ -5,6 +5,7 @@ import static com.example.schedulenotification.Classes.Listener.status;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -16,22 +17,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.schedulenotification.Activities.CalendarActivities.CalendarView;
 import com.example.schedulenotification.R;
-import com.example.schedulenotification.rollAdapter;
+import com.example.schedulenotification.Adapters.rollAdapter;
 
-import java.util.List;
 import java.util.Locale;
 
-public class TimerForFocus extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     ListView h, m, s;
 
@@ -204,7 +202,9 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
             @Override
             public void onFinish() {
                 //final MediaPlayer mp = MediaPlayer.create(this, R.raw.sound);
-                Toast.makeText(TimerForFocus.this, "Done!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TimerBlock.this, "Done!", Toast.LENGTH_SHORT).show();
+                playSound(R.raw.achieve);
+
                 mTimerRunning = false;
 
                 START_TIME_IN_MILLIS=0;
@@ -227,6 +227,22 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
 
         reset.setVisibility(View.INVISIBLE);
         clear.setVisibility(View.INVISIBLE);
+    }
+
+    /**
+     * playes a sound when the time is done
+     * @param resId
+     */
+    private void playSound(int resId){
+        MediaPlayer mp = MediaPlayer.create(TimerBlock.this, resId);
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                mediaPlayer.reset();
+                mediaPlayer.release();
+            }
+        });
+        mp.start();
     }
 
     /**
@@ -279,7 +295,6 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
                     b=true;
                 }
                 minute = (long) (Integer.parseInt(adpm.getItem(pos))*60000);
-                //START_TIME_IN_MILLIS= START_TIME_IN_MILLIS+ (long) (Integer.parseInt(adpm.getItem(pos))*60000);
                 break;
             case R.id.h:
                 hourt.setText("hours:" + adph.getItem(pos));
@@ -287,7 +302,6 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
                     b = true;
                 }
                 hour = (long) (Integer.parseInt(adph.getItem(pos))*3600000);
-                //START_TIME_IN_MILLIS=START_TIME_IN_MILLIS+ (long) (Integer.parseInt(adph.getItem(pos))*3600000);
                 break;
             case R.id.s:
                 sect.setText("seconds:" + adps.getItem(pos));
@@ -295,7 +309,6 @@ public class TimerForFocus extends AppCompatActivity implements AdapterView.OnIt
                     b = true;
                 }
                 sec = (long) (Integer.parseInt(adps.getItem(pos))*1000);
-                //START_TIME_IN_MILLIS=START_TIME_IN_MILLIS+ (long) (Integer.parseInt(adps.getItem(pos))*1000);
                 break;
         }
 

@@ -14,12 +14,22 @@ import com.example.schedulenotification.Activities.CheckList;
 import com.example.schedulenotification.Activities.CreateMission;
 import com.example.schedulenotification.R;
 
+/**
+ * A Broadcast receiver that shots a notification to the user about the finished mission
+ * (the mission was supposed to be done by the time that the notification pops up)
+ */
 public class Notification extends BroadcastReceiver {
     public static final int notificationID = 1;
     public static final String channelID = "channelID";
     public static final String titleExtra = "titleExtra";
     public static final String messageExtra = "messageExtra";
 
+    /**
+     * builds a notification and shoots an intent to CheckList activity in order to check the mission
+     * (will move the mission to the completed list)
+     * @param context
+     * @param intent
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -27,7 +37,7 @@ public class Notification extends BroadcastReceiver {
         i.putExtra("check",1);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, i, PendingIntent.FLAG_ONE_SHOT);
 
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri alarmSound = RingtoneManager.getDefaultUri(R.raw.notifsound);
 
         android.app.Notification notification = new NotificationCompat.Builder(context, channelID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)

@@ -5,48 +5,24 @@ android:orientation="horizontal"
 android:layout_width="match_parent"
 android:layout_height="wrap_content">
 
-    <Space
+    <TextView
+        android:id="@+id/color_blob"
         android:layout_width="0px"
         android:layout_height="match_parent"
-        android:layout_weight="20" />
+        android:layout_weight="17"
+        android:gravity="center"
+        android:text="•"
+        android:textSize="60sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/colorName"
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight="40"
+        android:fontFamily="@font/biorhyme_bold"
         android:text="PURPLE"
-        android:textColor="@color/black" />
-
-    <LinearLayout
-        android:layout_width="0px"
-        android:layout_height="match_parent"
-        android:layout_weight="30"
-        android:orientation="vertical">
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="10" />
-
-        <View
-            android:id="@+id/color_blob"
-            android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_gravity="center"
-            android:layout_weight="17"
-            android:background="@color/black" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="73" />
-
-    </LinearLayout>
-
-    <Space
-        android:layout_width="0px"
-        android:layout_height="match_parent"
-        android:layout_weight="10" />
+        android:textColor="@color/black"
+        android:textSize="16sp" />
 
 </LinearLayout>

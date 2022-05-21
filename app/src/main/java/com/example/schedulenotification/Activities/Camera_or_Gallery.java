@@ -71,6 +71,12 @@ public class Camera_or_Gallery extends AppCompatActivity {
     int i, count;
 
     Toolbar tb;
+    /**
+     * @param act- the activity the user got here before:
+     *           0= CreateMission activity
+     *           1= Information activity(for the profile picture
+     */
+    int act;
 
 
     private Uri filePath;
@@ -96,8 +102,11 @@ public class Camera_or_Gallery extends AppCompatActivity {
 
         s=true;
 
+        Intent geti= getIntent();
+        act = geti.getIntExtra("page",-1);
 
         switchToGallery();
+
     }
 
     /**
@@ -267,7 +276,11 @@ public class Camera_or_Gallery extends AppCompatActivity {
                         SharedPreferences.Editor editor = setting.edit();
                         editor.putInt("count", count);
                         editor.commit();
-                    } else {
+                    }
+                    else if (act == 2){
+                        path = "images/users/" + reAuth.getCurrentUser().getUid() + "/profile";
+                    }
+                    else {
                         path = "images/users/" + reAuth.getCurrentUser().getUid() + "/" + titlePic.getText().toString();
                         s0 = titlePic.getText().toString();
                     }
@@ -298,7 +311,7 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     });
                 }
 
-                switch (getIntent().getIntExtra("page", -1)){
+                switch (act){
                     case 1:
                         Intent gi = new Intent(this, CreateMission.class);
 
@@ -364,7 +377,7 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     }
                 });
 
-                switch (getIntent().getIntExtra("page", -1)){
+                switch (act){
                     case 1:
                         Intent ci = new Intent(this, CreateMission.class);
 
@@ -410,7 +423,7 @@ public class Camera_or_Gallery extends AppCompatActivity {
         Intent i;
         switch (item.getItemId()){
             case R.id.back:
-                switch ((getIntent().getIntExtra("page",-1))){
+                switch (act){
                     case 1:
                         i = new Intent (this, CreateMission.class);
                         startActivity(i);

@@ -7,15 +7,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.schedulenotification.Activities.CalendarActivities.CalendarView;
-import com.example.schedulenotification.Activities.CheckList;
-import com.example.schedulenotification.Activities.CreateMission;
-import com.example.schedulenotification.Activities.Information;
-import com.example.schedulenotification.Activities.TimerForFocus;
 import com.example.schedulenotification.R;
 
 /**
@@ -86,7 +81,7 @@ public class About extends AppCompatActivity {
                     startActivity(i);
                     break;
                 case "Focus Timer⏱️":
-                    i = new Intent(this, TimerForFocus.class);
+                    i = new Intent(this, TimerBlock.class);
                     startActivity(i);
                     break;
                 case "User's Information🔎":
