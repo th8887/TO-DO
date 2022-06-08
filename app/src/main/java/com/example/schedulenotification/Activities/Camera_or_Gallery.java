@@ -46,6 +46,9 @@ import java.util.Date;
 public class Camera_or_Gallery extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
+    /**
+     * the title in the tool bar.
+     */
     TextView title;
     /**
      * Button that switches between open camera and open gallery
@@ -104,6 +107,10 @@ public class Camera_or_Gallery extends AppCompatActivity {
 
         Intent geti= getIntent();
         act = geti.getIntExtra("page",-1);
+
+        if(act ==2 ){
+            titlePic.setText("profile");
+        }
 
         switchToGallery();
 
@@ -216,7 +223,8 @@ public class Camera_or_Gallery extends AppCompatActivity {
      * @param data
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultcode, Intent data) {
+    protected void onActivityResult(int requestCode,
+                                    int resultcode, Intent data) {
         super.onActivityResult(requestCode, resultcode, data);
         switch (i){
             case 1:if (requestCode == PICK_IMAGE_REQUEST
@@ -277,9 +285,11 @@ public class Camera_or_Gallery extends AppCompatActivity {
                         editor.putInt("count", count);
                         editor.commit();
                     }
+                    /*
                     else if (act == 2){
                         path = "images/users/" + reAuth.getCurrentUser().getUid() + "/profile";
                     }
+                     */
                     else {
                         path = "images/users/" + reAuth.getCurrentUser().getUid() + "/" + titlePic.getText().toString();
                         s0 = titlePic.getText().toString();

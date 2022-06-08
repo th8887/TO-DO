@@ -192,7 +192,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     /*adds the completed mission to the number of total completed missions*/
                     complete = complete + 1;
 
-                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,Information.profilelink, true);
                     u0.setComplete(complete);
                     u0.setAll(all);
                     u0.setCategory(Information.category);
@@ -248,7 +248,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
 
                     all = all -1;
 
-                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,Information.profilelink,true);
                     u0.setAll(all);
                     u0.setComplete(complete);
                     u0.setCategory(Information.category);
@@ -282,7 +282,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     /*minus the completed mission to the number of total completed missions*/
                     complete = complete - 1;
 
-                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,Information.profilelink, true);
                     u0.setComplete(complete);
                     u0.setAll(all);
                     u0.setCategory(Information.category);
@@ -310,7 +310,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     all = all - 1;
                     complete = complete - 1;
 
-                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                    u0 = new User(Information.name, Information.email, Information.phone, Information.uid,Information.profilelink,true);
                     u0.setComplete(complete);
                     u0.setAll(all);
                     u0.setCategory(Information.category);
@@ -338,7 +338,8 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
     }
 
     @Override
-    public void onItemClick(AdapterView<?> par, View v, int pos, long l) {
+    public void onItemClick(AdapterView<?> par,
+                            View v, int pos, long l) {
         m= missions.get(pos);
     }
 

@@ -15,13 +15,15 @@ public class User {
     private ArrayList<String> category;
     private int complete;
     private int all;
+    private String profile;
 
     public User(String name, String e,
-                String phone, String uID, boolean active) {
+                String phone, String uID,String profile, boolean active) {
         this.name=name;
+        this.email= e;
         this.phone = phone;
         this.uID= uID;
-        this.email= e;
+        this.profile = profile;
         this.active= active;
         this.category= new ArrayList<>();
         category.add("Category");
@@ -87,6 +89,10 @@ public class User {
     public int getAll() { return all; }
 
     public void setAll(int all) { this.all = all; }
+
+    public String getProfile() { return profile; }
+
+    public void setProfile(String profile) { this.profile = profile; }
 
     @Override
     public String toString() {

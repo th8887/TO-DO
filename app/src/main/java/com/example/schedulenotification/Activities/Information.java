@@ -71,7 +71,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     ListView categories;
     TextView showCom;
 
-    public static String name, email, uid,phone;
+    public static String name, email, uid,phone, profilelink;
 
     public static ArrayList<String> category;
     /**
@@ -143,6 +143,9 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
             ActivityCompat.requestPermissions(this, permissionsId, callbackId);
     }
 
+    /**
+     * in order to read the users information from the firebase database.
+     */
     ValueEventListener VEL = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dS) {
@@ -156,8 +159,18 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
                     category = user.getCategory();
 
+                    profilelink = user.getProfile();
+
                     complete = user.getComplete();
                     all = user.getAll();
+
+                    if(!user.getProfile().equals("")){
+                        uploadProfile(user.getProfile());
+                    }
+
+
+
+
 
                     showCom.setText("Completed Missions: " + complete + "/" + all);
 
@@ -198,71 +211,49 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         Boolean isChecked = settings.getBoolean("stayConnect", false);
         cBconnectview.setChecked(isChecked);
 
-        if (!(getIntent().getStringExtra("way")== null)){
-            StorageReference storageRef = storage.getReference();
-
-            StorageReference imageRef = storageRef.child(getIntent().getStringExtra("way"));
-
-            final long ONE_MEGABYTE = 1024 * 1024;
-
-            imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                @Override
-                public void onSuccess(byte[] bytes) {
-                    Bitmap bMap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    profile.setImageBitmap(bMap);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(Information.this, "not Working.", Toast.LENGTH_SHORT).show();
-                }
-            });
+        if ((!(getIntent().getStringExtra("way")== null))&&(getIntent().getIntExtra("check",-1) == 3)){
+            uploadProfile(getIntent().getStringExtra("way"));
         }
 
-
     }
+
+    /**
+     * this function will upload the profile picture from Firebase Storage
+     * and will show it to the user in the ImageView.
+     * @param s
+     */
+    private void uploadProfile(String s) {
+        StorageReference storageRef = storage.getReference();
+
+        StorageReference imageRef = storageRef.child(s);
+
+        final long ONE_MEGABYTE = 1024 * 1024;
+
+        imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                Bitmap bMap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                profile.setImageBitmap(bMap);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(Information.this, "not Working.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     /**
      * if the user wants to pick a picture for his account
      * @param view
      */
-
-    /*Intent pic2 = new Intent(this, Camera_or_Gallery.class);
-        pic2.putExtra("page", 2);
-        startActivity(pic2);
-     */
     public void pickPic(View view) {
         Intent pic2 = new Intent(this, Camera_or_Gallery.class);
         pic2.putExtra("page", 2);
         startActivity(pic2);
-
-        /*
-        AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setTitle("Pick Camera or Gallery:");
-        adb.setCancelable(true);
-        adb.setPositiveButton("Camera", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                use=1;
-                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(takePicture, 0);
-            }
-        });
-        adb.setNegativeButton("Gallery", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                use=2;
-                Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhoto , 1);
-            }
-        });
-        AlertDialog ad = adb.create();
-        ad.show();
-
-         */
     }
-
+/*
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
@@ -283,17 +274,24 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         }
     }
 
+ */
+
+    /**
+     * this function updates the users information and sends the updated data to FireBase Database.
+     * @param view
+     */
     public void update(View view) {
         phone= p.getText().toString();
         name = n.getText().toString();
         email = e.getText().toString();
+        profilelink = getIntent().getStringExtra("way");
 
         String s = showCom.getText().toString();
         s=s.substring(20);
         complete = Integer.parseInt(s.substring(0,1));
         all = Integer.parseInt(s.substring(2));
 
-        User u2 = new User(name,email,phone, uid,true);
+        User u2 = new User(name,email,phone, uid,profilelink,true);
         u2.setCategory(category);
         u2.setComplete(complete);
         u2.setAll(all);
@@ -360,6 +358,11 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         dialog.show();
     }
 
+    /**
+     * gives the user a warning that he can not change the email of the account
+     * because Firebase Authentication knows the user with one email.
+     * @param view
+     */
     public void warning(View view) {
         Toast.makeText(this, "You can't change the email!", Toast.LENGTH_SHORT).show();
     }
@@ -372,7 +375,8 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
      * @param id
      */
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onItemClick(AdapterView<?> parent, View view,
+                            int position, long id) {
         pos = position;
     }
 

@@ -160,7 +160,14 @@ public class Authentication extends AppCompatActivity {
         sol.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-
+    /**
+     *this function checks if the user created a new user, or logged in with an old one.
+     * If the user created a new account, then the program will create a new
+     * object in Firebase Database with all the new information and a user in Firebase Authentication.
+     * If the user logged in an old account, the program compares the entered information
+     * to the data it has in Firebase Authentication.
+     * @param view
+     */
     public void enter(View view) {
         //if the user is already signed-in and wants to enter the app.
         if(register){
@@ -243,7 +250,7 @@ public class Authentication extends AppCompatActivity {
                                     editor01.commit();
 
                                     Log.d("MainActivity", "createUserWithEmail:success");
-                                    User u= new User(name,email,phone, reAuth.getUid(),true);
+                                    User u= new User(name,email,phone, reAuth.getUid(),"",true);
                                     refDB.child(reAuth.getUid()).setValue(u);
 
                                     Toast.makeText(Authentication.this, "Successful registration", Toast.LENGTH_SHORT).show();

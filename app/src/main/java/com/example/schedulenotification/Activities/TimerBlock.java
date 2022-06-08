@@ -252,6 +252,7 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
     private void updateCountDownText() {
         int minutes = (int) ((mTimeLeftInMillis%3600000) / 1000) / 60;
         int seconds = (int) ((mTimeLeftInMillis%3600000) / 1000) % 60;
+        seconds++;
         int hour= (int) (mTimeLeftInMillis / 3600000);
 
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minutes, seconds);

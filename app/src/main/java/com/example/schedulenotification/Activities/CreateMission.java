@@ -241,7 +241,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
                         all = all +1;
 
-                        User u0 = new User(Information.name, Information.email, Information.phone, Information.uid,true);
+                        User u0 = new User(Information.name, Information.email, Information.phone, Information.uid,Information.profilelink,true);
                         u0.setAll(all);
                         u0.setComplete(complete);
                         u0.setCategory(c);
@@ -360,10 +360,11 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                 case 2: i2.setChecked(true); break;
                 case 3: iGroup.clearCheck(); break;
             }
+            category = settings.getInt("category", -1);
             catS.post(new Runnable() {
                 @Override
                 public void run() {
-                    catS.setSelection(settings.getInt("category", -1));
+                    catS.setSelection(category);
                 }
             });
             //in order to get the right index of the chosen color
@@ -375,7 +376,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
             colors.post(new Runnable() {
                 @Override
                 public void run() {
-                    catS.setSelection(finalCi);
+                    colors.setSelection(finalCi);
                 }
             });
 
@@ -491,7 +492,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                         ,c);
                 catS.setAdapter(adp2);
 
-                User newU= new User(name,email,phone,uID,a);
+                User newU= new User(name,email,phone,uID,Information.profilelink,a);
                 newU.setCategory(c);
                 newU.setComplete(complete);
                 newU.setAll(all);
@@ -574,7 +575,9 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         importance=1;
     }
 
-    public void i2(View view) { importance=2; }
+    public void i2(View view) {
+        importance=2;
+    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -651,6 +654,9 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         return calendar.getTimeInMillis();
     }
 
+    /**
+     * creates a channel for the notifications.
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void createNotificationChannel()
     {

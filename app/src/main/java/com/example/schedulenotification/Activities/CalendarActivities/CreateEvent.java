@@ -206,7 +206,8 @@ public class CreateEvent extends AppCompatActivity {
             Toast.makeText(this, "You must have a name", Toast.LENGTH_SHORT).show();
     }
 
-    private void spiltDates(int day, int month, int year, int hour, int min, String date, String time, int path) {
+    private void spiltDates(int day, int month, int year,
+                            int hour, int min, String date, String time, int path) {
         month = 0;
         while(!(month < 12 && date.startsWith(months[month]))){
             month++;
