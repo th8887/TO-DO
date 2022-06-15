@@ -173,6 +173,10 @@ public class CreateEvent extends AppCompatActivity {
         date1 = month + day+ ", " + year;
         time1 = timeFormat.format(currentTime);
         startEvent.setText(date1 + "--" + time1);
+
+        if(!startEvent.getText().toString().equals("")) {
+            spiltDates(year1, month1, day1, hour1, min1, date1, time1, 1);
+        }
     }
 
     /**
@@ -181,12 +185,6 @@ public class CreateEvent extends AppCompatActivity {
      * @param view the view
      */
     public void start(View view) {
-        if(!startEvent.getText().toString().equals("")) {
-            String s = startEvent.getText().toString();
-            String d = s.substring(0, s.indexOf("--") );
-            String t = s.substring(s.indexOf("--") + 2);
-            spiltDates(year1, month1, day1, hour1, min1, d, t, 1);
-        }
         createPickers(startEvent, 1);
     }
 
@@ -196,15 +194,6 @@ public class CreateEvent extends AppCompatActivity {
      * @param view the view
      */
     public void end(View view) {
-        if(!endEvent.getText().toString().equals("")) {
-            String s = endEvent.getText().toString();
-            String d = s.substring(0, s.indexOf("--") + 1);
-            String t = s.substring(s.indexOf("--") + 2);
-            spiltDates(year2, month2, day2, hour2, min2, d, t, 2);
-        }
-        else{//a blank situation
-            createPickers(endEvent, 3);
-        }
         createPickers(endEvent, 2);
     }
 
@@ -212,7 +201,8 @@ public class CreateEvent extends AppCompatActivity {
      * Create pickers.
      *
      * @param t    - the chosen text view in the activity(startEvent or endEvent).
-     * @param path -  the chosen TextView - if it's startEvent- 1            if it's endEvent- 2 to get the right time and date to pass to the intent we need the path to each TextView in order to not write the same code twice.
+     * @param path -  the chosen TextView - if it's startEvent- 1
+     *             if it's endEvent- 2
      */
     public void createPickers(TextView t, int path){
         final Dialog dialog = new Dialog(CreateEvent.this);
@@ -227,20 +217,10 @@ public class CreateEvent extends AppCompatActivity {
         DatePicker dd = dialog.findViewById(R.id.dd);
         TimePicker tt = dialog.findViewById(R.id.tt);
 
-        switch (path){
-            case 1:
-                dd.updateDate(year1, month1, day1);
-                tt.setCurrentHour(hour1);
-                tt.setCurrentMinute(min1);
-                break;
-            case 2:
-                dd.updateDate(year2, month2, day2);
-                tt.setCurrentHour(hour2);
-                tt.setCurrentMinute(min2);
-                break;
-            case 3:
-                break;
-        }
+        dd.updateDate(year1, month1, day1);
+        tt.setCurrentHour(hour1);
+        tt.setCurrentMinute(min1);
+
 
         set.setOnClickListener(new View.OnClickListener() {
 
@@ -283,6 +263,17 @@ public class CreateEvent extends AppCompatActivity {
     }
 
     /**
+     * if the user chose an "all Day" event then the start
+     * and end of the event changes to the chosen day.
+     * @param view
+     */
+    public void allday(View view) {
+        String s = startEvent.getText().toString();
+        endEvent.setText(s.substring(0, s.indexOf("--")));
+        startEvent.setText(s.substring(0, s.indexOf("--")));
+    }
+
+    /**
      * saves the event in googleCalendar.
      *
      * @param view the view
@@ -290,13 +281,18 @@ public class CreateEvent extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void saveEvent(View view) {
         if (!title.getText().toString().isEmpty()) {
-            if (allDay.isChecked())
-                a=true;
-            else
-                a=false;
-
-            spiltDates(day1, month1, year1, hour1, min1, date1,time1, 1);
-            spiltDates(day2, month2, year2, hour2, min2, date2, time2, 2);
+            if (allDay.isChecked()) {
+                a = true;
+                spiltDates(year1,month1, day1, hour1, min1,
+                        startEvent.getText().toString(),"01:00", 1 );
+                spiltDates(year2, month2, day2, hour2, min2,
+                        endEvent.getText().toString(), "00:00", 2);
+            }
+            else {
+                a = false;
+                spiltDates(day1, month1, year1, hour1, min1, date1, time1, 1);
+                spiltDates(day2, month2, year2, hour2, min2, date2, time2, 2);
+            }
 
             Intent info = new Intent(Intent.ACTION_INSERT)
                     .setData(CalendarContract.Events.CONTENT_URI)
@@ -306,7 +302,12 @@ public class CreateEvent extends AppCompatActivity {
             java.util.Calendar startTime = java.util.Calendar.getInstance();
             startTime.set(year1, month1-1, day1, hour1, min1);
             java.util.Calendar endTime = java.util.Calendar.getInstance();
-            endTime.set(year2, month2-1, day2, hour2, min2);
+            if(a){
+                endTime.set(year2, month2-1, day2+1, hour2, min2);
+            }
+            else {
+                endTime.set(year2, month2 - 1, day2, hour2, min2);
+            }
             info.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
                     startTime.getTimeInMillis());
             info.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,

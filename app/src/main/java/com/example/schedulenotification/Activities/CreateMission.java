@@ -443,36 +443,13 @@ restarts the page to its original start after the mission is saved.
             });
 
             category = settings.getInt("category", -1);
+
             catS.post(new Runnable() {
                 @Override
                 public void run() {
                     catS.setSelection(category);
                 }
             });
-
-            /*loading the images' links from the file
-            if (p == 2){
-                imagesLinks.clear();
-                int size = settings.getInt("ImagesLink_Size", 0);
-                for (int i = 0; i < size; i++) {
-                    imagesLinks.add(settings.getString("ImagesLink_" + i, null));
-                }
-
-                imagesNames.clear();
-                size = settings.getInt("ImagesName_Size", 0);
-                for (int i = 0; i < size; i++) {
-                    imagesNames.add(settings.getString("ImagesName_" + i, null));
-                }
-            }
-
-             */
-            /*else{//if the user cane from camera or gallery.
-                ArrayAdapter<String> adp = new ArrayAdapter<String>(CreateMission.this,
-                        androidx.preference.R.layout.support_simple_spinner_dropdown_item, imagesNames);
-                linksNames.setAdapter(adp);
-            }
-
-             */
 
             des.setText(settings.getString("description","fff"));
 /*
@@ -704,6 +681,7 @@ restarts the page to its original start after the mission is saved.
 
                 ImageView showpic = (ImageView) picture.findViewById(R.id.showpic1);
                 Button cancel = (Button) picture.findViewById(R.id.cancel);
+                Button rotate = (Button) picture.findViewById(R.id.rotate);
                 TextView name = (TextView) picture.findViewById(R.id.name);
 
                 storageRef = storage.getReference();
@@ -730,6 +708,13 @@ restarts the page to its original start after the mission is saved.
                     @Override
                     public void onClick(View v) {
                         picture.cancel();
+                    }
+                });
+
+                rotate.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showpic.animate().rotation(showpic.getRotation() + 90).start();
                     }
                 });
                 picture.show();

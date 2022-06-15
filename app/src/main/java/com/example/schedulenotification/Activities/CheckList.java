@@ -487,6 +487,10 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     }
                 });
                 break;
+            case R.id.cm:
+                i= new Intent(this, CreateMission.class);
+                startActivity(i);
+                break;
             case R.id.c:
                 i= new Intent(this, CalendarView.class);
                 startActivity(i);

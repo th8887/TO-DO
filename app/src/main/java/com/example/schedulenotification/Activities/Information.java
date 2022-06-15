@@ -57,13 +57,13 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     public static int complete;
     public static int all;
 
-    EditText n, e,p;
+    EditText n, p;
     CheckBox cBconnectview;
     ImageView profile;
     ListView categories;
-    TextView showCom;
+    TextView showCom, e;
 
-    public static String name, email, uid,phone, profilelink;
+    public static String name, email, uid, phone, profilelink;
 
     public static ArrayList<String> category;
     /**
@@ -76,8 +76,8 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     Toolbar tb;
     /**
      * @param use- the use for the profile: with camera or gallery.
-     *           1=Camera
-     *           2=Gallery
+     * 1=Camera
+     * 2=Gallery
      */
     int use;
 
@@ -91,11 +91,11 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_information);
 
-        n= (EditText) findViewById(R.id.nameu);
-        e= (EditText) findViewById(R.id.emailu);
-        p=(EditText) findViewById(R.id.phoneu);
+        n = (EditText) findViewById(R.id.nameu);
+        e = (TextView) findViewById(R.id.emailu);
+        p = (EditText) findViewById(R.id.phoneu);
         categories = (ListView) findViewById(R.id.categories);
-        cBconnectview=(CheckBox)findViewById(R.id.cBconnectview);
+        cBconnectview = (CheckBox) findViewById(R.id.cBconnectview);
         profile = (ImageView) findViewById(R.id.profile);
         showCom = (TextView) findViewById(R.id.showCom);
 
@@ -122,6 +122,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
     /**
      * asks the user for permissions in order for the app to run smoothly.
+     *
      * @param callbackId
      * @param permissionsId
      */
@@ -142,7 +143,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         @Override
         public void onDataChange(@NonNull DataSnapshot dS) {
             if (dS.exists()) {
-                for(DataSnapshot data : dS.getChildren()) {
+                for (DataSnapshot data : dS.getChildren()) {
                     user = data.getValue(User.class);
                     n.setText(user.getName());
                     name = user.getName();
@@ -156,10 +157,9 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                     complete = user.getComplete();
                     all = user.getAll();
 
-                    if(getIntent().getIntExtra("check", -1) == 3){
+                    if (getIntent().getIntExtra("check", -1) == 3) {
                         uploadProfile(getIntent().getStringExtra("way"));
-                    }
-                    else {
+                    } else {
                         if (!user.getProfile().equals(" ")) {
                             uploadProfile(user.getProfile());
                         }
@@ -179,6 +179,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
             Log.w(TAG, "Failed to read value.", error.toException());
         }
     };
+
     /**
      * ON start the activity shows the information about the user.
      */
@@ -188,7 +189,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
 
         FirebaseUser fbuser = reAuth.getCurrentUser();
-        if(fbuser == null){
+        if (fbuser == null) {
             Intent i = new Intent(Information.this, Authentication.class);
             startActivity(i);
         }
@@ -204,7 +205,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         Boolean isChecked = settings.getBoolean("stayConnect", false);
         cBconnectview.setChecked(isChecked);
 
-        if ((!(getIntent().getStringExtra("way")== null))&&(getIntent().getIntExtra("check",-1) == 3)){
+        if ((!(getIntent().getStringExtra("way") == null)) && (getIntent().getIntExtra("check", -1) == 3)) {
             uploadProfile(getIntent().getStringExtra("way"));
         }
 
@@ -213,6 +214,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     /**
      * this function will upload the profile picture from Firebase Storage
      * and will show it to the user in the ImageView.
+     *
      * @param s
      */
     private void uploadProfile(String s) {
@@ -239,6 +241,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
     /**
      * if the user wants to pick a picture for his account
+     *
      * @param view
      */
     public void pickPic(View view) {
@@ -249,20 +252,21 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
     /**
      * this function updates the users information and sends the updated data to FireBase Database.
+     *
      * @param view
      */
     public void update(View view) {
-        phone= p.getText().toString();
+        phone = p.getText().toString();
         name = n.getText().toString();
         email = e.getText().toString();
         profilelink = getIntent().getStringExtra("way");
 
         String s = showCom.getText().toString();
-        s=s.substring(20);
-        complete = Integer.parseInt(s.substring(0,1));
+        s = s.substring(20);
+        complete = Integer.parseInt(s.substring(0, 1));
         all = Integer.parseInt(s.substring(2));
 
-        User u2 = new User(name,email,phone, uid,profilelink,true);
+        User u2 = new User(name, email, phone, uid, profilelink, true);
         u2.setCategory(category);
         u2.setComplete(complete);
         u2.setAll(all);
@@ -273,6 +277,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
     /**
      * if the user wants to log out of his account
+     *
      * @param view
      */
     public void logOut(View view) {
@@ -287,14 +292,14 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
             Intent si = new Intent(Information.this, Authentication.class);
             startActivity(si);
             finish();
-        }
-        else{
+        } else {
             Toast.makeText(this, "You chose to stay connected.", Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
      * an option to add a category.
+     *
      * @param view
      */
     public void addCat(View view) {
@@ -306,20 +311,20 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         //Mention the name of the layout of your custom dialog.
         dialog.setContentView(R.layout.create_category);
 
-        final EditText nameC= dialog.findViewById(R.id.nameC);
-        Button add= dialog.findViewById(R.id.add);
+        final EditText nameC = dialog.findViewById(R.id.nameC);
+        Button add = dialog.findViewById(R.id.add);
 
         add.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
 
-                String n= nameC.getText().toString();
+                String n = nameC.getText().toString();
                 category.add(n);
 
-                ArrayAdapter<String> adp2= new ArrayAdapter<String>(Information.this
+                ArrayAdapter<String> adp2 = new ArrayAdapter<String>(Information.this
                         , androidx.appcompat.R.layout.support_simple_spinner_dropdown_item
-                        ,category);
+                        , category);
                 categories.setAdapter(adp2);
 
                 dialog.dismiss();
@@ -332,6 +337,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     /**
      * gives the user a warning that he can not change the email of the account
      * because Firebase Authentication knows the user with one email.
+     *
      * @param view
      */
     public void warning(View view) {
@@ -340,6 +346,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
     /**
      * gets the position of the category
+     *
      * @param parent
      * @param view
      * @param position
@@ -353,6 +360,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
     /**
      * Creates a Context Menu for each space in the ListView
+     *
      * @param menu
      * @param v
      * @param menuInfo
@@ -367,18 +375,19 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     /**
      * check mission- deletes the mission from uncompleted root, updates the activity
      * to true(the mission is done), and adds the mission into completed root in Firebase.
+     *
      * @param item
      * @return
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getTitle().toString()){
+        switch (item.getTitle().toString()) {
             case "Delete Category":
-                category.remove(pos+1);
+                category.remove(pos + 1);
                 ArrayAdapter<String> adp = new ArrayAdapter<String>(Information.this,
                         androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, category);
                 categories.setAdapter(adp);
-            break;
+                break;
             case "Cancle":
                 closeContextMenu();
                 break;
@@ -387,8 +396,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
 
 
@@ -396,9 +404,9 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean onOptionsItemSelected(MenuItem item) {
         Intent i;
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.i:
                 i = new Intent(this, About.class);
                 startActivity(i);
@@ -408,15 +416,15 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                 startActivity(i);
                 break;
             case R.id.cl:
-                i= new Intent(this, CheckList.class);
+                i = new Intent(this, CheckList.class);
                 startActivity(i);
                 break;
             case R.id.c:
-                i= new Intent(this, CalendarView.class);
+                i = new Intent(this, CalendarView.class);
                 startActivity(i);
                 break;
             case R.id.tblock:
-                i= new Intent(this, TimerBlock.class);
+                i = new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;
             case R.id.ui:

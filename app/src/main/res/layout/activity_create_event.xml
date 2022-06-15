@@ -84,7 +84,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="10"
                     android:fontFamily="@font/biorhyme_extralight"
-                    android:text="All Day" />
+                    android:text="All Day"
+                    android:onClick="allday"/>
 
                 <Space
                     android:layout_width="0px"

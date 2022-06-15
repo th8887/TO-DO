@@ -100,15 +100,17 @@
                 android:textColor="@color/beige"
                 android:textStyle="bold" />
 
-            <EditText
+            <TextView
                 android:id="@+id/emailu"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="10"
                 android:ems="10"
                 android:hint="e-mail"
+                android:inputType="textEmailAddress"
                 android:onClick="warning"
-                android:inputType="textEmailAddress"/>
+                android:textColor="@color/black"
+                android:textSize="24sp" />
 
             <Space
                 android:layout_width="match_parent"
