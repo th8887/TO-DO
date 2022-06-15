@@ -5,7 +5,6 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import static com.example.schedulenotification.refFB.reAuth;
 import static com.example.schedulenotification.refFB.refDB;
-import static com.example.schedulenotification.refFB.refStorage;
 import static com.example.schedulenotification.refFB.storage;
 
 import androidx.annotation.NonNull;
@@ -13,18 +12,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -54,9 +48,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 
@@ -164,13 +156,14 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                     complete = user.getComplete();
                     all = user.getAll();
 
-                    if(!user.getProfile().equals("")){
-                        uploadProfile(user.getProfile());
+                    if(getIntent().getIntExtra("check", -1) == 3){
+                        uploadProfile(getIntent().getStringExtra("way"));
                     }
-
-
-
-
+                    else {
+                        if (!user.getProfile().equals(" ")) {
+                            uploadProfile(user.getProfile());
+                        }
+                    }
 
                     showCom.setText("Completed Missions: " + complete + "/" + all);
 
@@ -227,7 +220,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
         StorageReference imageRef = storageRef.child(s);
 
-        final long ONE_MEGABYTE = 1024 * 1024;
+        final long ONE_MEGABYTE = 3150 * 3150;
 
         imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
@@ -253,28 +246,6 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         pic2.putExtra("page", 2);
         startActivity(pic2);
     }
-/*
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case 0:
-                if (resultCode == RESULT_OK) {
-                    extras = data.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    profile.setImageBitmap(imageBitmap);
-                }
-
-                break;
-            case 1:
-                if(resultCode == RESULT_OK){
-                    selectedImage = data.getData();
-                    profile.setImageURI(selectedImage);
-                }
-                break;
-        }
-    }
-
- */
 
     /**
      * this function updates the users information and sends the updated data to FireBase Database.
@@ -418,12 +389,8 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.info, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
 
-        menu.add("Create A Mission📝");
-        menu.add("Check List📃");
-        menu.add("Calendar📅");
-        menu.add("Focus Timer⏱️");
 
         return true;
     }
@@ -431,27 +398,28 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         Intent i;
-        switch(item.getTitle().toString()){
-            case "INFO":
+        switch(item.getItemId()){
+            case R.id.i:
                 i = new Intent(this, About.class);
                 startActivity(i);
-                finish();
                 break;
-            case "Create A Mission📝":
-                i= new Intent(this, CreateMission.class);
+            case R.id.cm:
+                i = new Intent(this, CreateMission.class);
                 startActivity(i);
                 break;
-            case "Check List📃":
+            case R.id.cl:
                 i= new Intent(this, CheckList.class);
                 startActivity(i);
                 break;
-            case "Calendar📅":
+            case R.id.c:
                 i= new Intent(this, CalendarView.class);
                 startActivity(i);
                 break;
-            case "Focus Timer⏱️":
+            case R.id.tblock:
                 i= new Intent(this, TimerBlock.class);
                 startActivity(i);
+                break;
+            case R.id.ui:
                 break;
         }
         return true;

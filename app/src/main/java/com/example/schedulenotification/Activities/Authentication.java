@@ -33,6 +33,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * The type Authentication.
+ *
+ * @author Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version beta
+ * @since 1 /10/2021 creates a new user of logs in an old one.
+ */
 public class Authentication extends AppCompatActivity {
 
     /**
@@ -63,7 +73,11 @@ public class Authentication extends AppCompatActivity {
     /**
      * In order to build an object from User Class.
      */
-    String name, phone, password, email;
+    String name,
+    phone,
+    password,
+    email;
+
 
     Toolbar tb;
 
@@ -161,12 +175,13 @@ public class Authentication extends AppCompatActivity {
     }
 
     /**
-     *this function checks if the user created a new user, or logged in with an old one.
+     * this function checks if the user created a new user, or logged in with an old one.
      * If the user created a new account, then the program will create a new
      * object in Firebase Database with all the new information and a user in Firebase Authentication.
      * If the user logged in an old account, the program compares the entered information
      * to the data it has in Firebase Authentication.
-     * @param view
+     *
+     * @param view the view
      */
     public void enter(View view) {
         //if the user is already signed-in and wants to enter the app.
@@ -224,51 +239,72 @@ public class Authentication extends AppCompatActivity {
                 p.setError("Phone is Required.");
             }
             //you don't always need a phone number...
-            if (TextUtils.isEmpty(password)){
+            if (TextUtils.isEmpty(password) ){
                 pa.setError("Password Is Required.");
             }
             else {
                 if (password.length() < 6) {
                     pa.setError("Password must be longer than 6 digits.");
                 }
+                else if (!isValidMobileNo(phone)){
+                    Toast.makeText(this, "please give a correct phone number", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    final ProgressDialog pd = ProgressDialog.show(this, "Register", "Registering...", true);
+                    reAuth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    pd.dismiss();
+                                    if (task.isSuccessful()) {
+                                        SharedPreferences settings = getSharedPreferences("PREFS_NAME", MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = settings.edit();
+                                        editor.putBoolean("stayConnect", connected.isChecked());
+                                        editor.commit();
 
-                final ProgressDialog pd=ProgressDialog.show(this,"Register","Registering...",true);
-                reAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                pd.dismiss();
-                                if (task.isSuccessful()) {
-                                    SharedPreferences settings=getSharedPreferences("PREFS_NAME",MODE_PRIVATE);
-                                    SharedPreferences.Editor editor=settings.edit();
-                                    editor.putBoolean("stayConnect",connected.isChecked());
-                                    editor.commit();
+                                        SharedPreferences setting01 = getSharedPreferences("count", MODE_PRIVATE);
+                                        SharedPreferences.Editor editor01 = setting01.edit();
+                                        editor01.putInt("count", 0);
+                                        editor01.commit();
 
-                                    SharedPreferences setting01 = getSharedPreferences("count", MODE_PRIVATE);
-                                    SharedPreferences.Editor editor01 = setting01.edit();
-                                    editor01.putInt("count", 0);
-                                    editor01.commit();
+                                        Log.d("MainActivity", "createUserWithEmail:success");
+                                        User u = new User(name, email, phone, reAuth.getUid(), " ", true);
+                                        refDB.child(reAuth.getUid()).setValue(u);
 
-                                    Log.d("MainActivity", "createUserWithEmail:success");
-                                    User u= new User(name,email,phone, reAuth.getUid(),"",true);
-                                    refDB.child(reAuth.getUid()).setValue(u);
-
-                                    Toast.makeText(Authentication.this, "Successful registration", Toast.LENGTH_SHORT).show();
-                                    Intent si = new Intent(Authentication.this,Information.class);
-                                    //si.putExtra("newuser",true);
-                                    startActivity(si);
-                                } else {
-                                    if (task.getException() instanceof FirebaseAuthUserCollisionException)
-                                        Toast.makeText(Authentication.this, "User with e-mail already exist!", Toast.LENGTH_SHORT).show();
-                                    else {
-                                        Log.w("MainActivity", "createUserWithEmail:failure", task.getException());
-                                        Toast.makeText(Authentication.this, "User create failed.",Toast.LENGTH_LONG).show();
+                                        Toast.makeText(Authentication.this, "Successful registration", Toast.LENGTH_SHORT).show();
+                                        Intent si = new Intent(Authentication.this, Information.class);
+                                        //si.putExtra("newuser",true);
+                                        startActivity(si);
+                                    } else {
+                                        if (task.getException() instanceof FirebaseAuthUserCollisionException)
+                                            Toast.makeText(Authentication.this, "User with e-mail already exist!", Toast.LENGTH_SHORT).show();
+                                        else {
+                                            Log.w("MainActivity", "createUserWithEmail:failure", task.getException());
+                                            Toast.makeText(Authentication.this, "User create failed.", Toast.LENGTH_LONG).show();
+                                        }
                                     }
                                 }
-                            }
-                        });
+                            });
+                }
             }
         }
+    }
+
+    /**
+     * checks if the phone number is correct.
+     * @param str
+     * @return
+     */
+    public static boolean isValidMobileNo(String str)
+    {
+//(0/97): number starts with (0/97)
+//[7-9]: starting of the number may contain a digit between 0 to 9
+//[0-9]: then contains digits 0 to 9 (0/97)?[5][0-9]{10}
+        Pattern ptrn = Pattern.compile("[+0]{0,2}(91)?[0-9]{10}");
+//the matcher() method creates a matcher that will match the given input against this pattern
+        Matcher match = ptrn.matcher(str);
+//returns a boolean value
+        return (match.find() && match.group().equals(str));
     }
 
     @Override

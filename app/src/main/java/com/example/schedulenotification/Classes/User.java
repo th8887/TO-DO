@@ -1,7 +1,12 @@
 package com.example.schedulenotification.Classes;
 
 import java.util.ArrayList;
-
+/**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
+ * A class for a user in the app, to upload the user to firebase.
+ */
 public class User {
     private String name;
     private String phone;

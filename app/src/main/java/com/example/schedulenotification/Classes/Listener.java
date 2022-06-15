@@ -10,9 +10,14 @@ import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+
 /**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
  * A service that blocks the notifications from other apps when the user approves permission.
  */
+
 public class Listener extends NotificationListenerService
 {
     Context context;
@@ -36,7 +41,7 @@ public class Listener extends NotificationListenerService
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (status) {
             String pack = sbn.getPackageName();
-            String ticker = sbn.getNotification().tickerText.toString();
+            //String ticker = sbn.getNotification().tickerText.toString();
             Bundle extras = sbn.getNotification().extras;
             String title = extras.getString("android.title");
             String text = extras.getCharSequence("android.text").toString();
@@ -48,7 +53,7 @@ public class Listener extends NotificationListenerService
 
             Intent msgrcv = new Intent("Msg");
             msgrcv.putExtra("package", pack);
-            msgrcv.putExtra("ticker", ticker);
+            //msgrcv.putExtra("ticker", ticker);
             msgrcv.putExtra("title", title);
             msgrcv.putExtra("text", text);
             LocalBroadcastManager.getInstance(context).sendBroadcast(msgrcv);

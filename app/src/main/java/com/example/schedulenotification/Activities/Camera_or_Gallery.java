@@ -1,6 +1,8 @@
 package com.example.schedulenotification.Activities;
 
 import static android.app.PendingIntent.getActivity;
+import static com.example.schedulenotification.Activities.CreateMission.imagesNames;
+import static com.example.schedulenotification.Activities.CreateMission.imagesLinks;
 import static com.example.schedulenotification.refFB.reAuth;
 import static com.example.schedulenotification.refFB.refStorage;
 
@@ -28,7 +30,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.schedulenotification.R;
@@ -43,6 +45,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * The type Camera or gallery.
+ *
+ * @author Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version beta
+ * @since 1 /10/2021 Lets the user pick a photo from the gallery or take a  picture with the camera and upload it to Firebase Storage
+ */
 public class Camera_or_Gallery extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
@@ -54,30 +63,50 @@ public class Camera_or_Gallery extends AppCompatActivity {
      * Button that switches between open camera and open gallery
      */
     Button btnS;
+    /**
+     * The Title pic.
+     */
     EditText titlePic;
 
+    /**
+     * The Show pic.
+     */
     ImageView showPic;
     /**
-     * @param- s= status.
+     * The S.
+     *
+     * @param- s = status.
      */
     boolean s;
     /**
      * In case the user wants to name the file;
      */
-    String path, s0;
+    String path, /**
+     * The S 0.
+     */
+    s0;
     /**
      * for the type of the OnActivityResult
      * 1=gallery
      * 2=camera
-     * @param count- counts the pictures with the default name
+     *
+     * @param count - counts the pictures with the default name
      */
-    int i, count;
+    int i, /**
+     * The Count.
+     */
+    count;
 
+    /**
+     * The Tb.
+     */
     Toolbar tb;
     /**
-     * @param act- the activity the user got here before:
-     *           0= CreateMission activity
-     *           1= Information activity(for the profile picture
+     * The Act.
+     *
+     * @param act - the activity the user got here before:
+     *  0= CreateMission activity
+     * 1= Information activity(for the profile picture
      */
     int act;
 
@@ -85,7 +114,13 @@ public class Camera_or_Gallery extends AppCompatActivity {
     private Uri filePath;
     private final int PICK_IMAGE_REQUEST = 22;
 
+    /**
+     * The Photo uri.
+     */
     Uri photoUri;
+    /**
+     * The Camera request.
+     */
     final int CAMERA_REQUEST = 45;
 
     @Override
@@ -156,7 +191,8 @@ public class Camera_or_Gallery extends AppCompatActivity {
      * opens the chosen app- Gallery or Camera
      * true- gallery
      * false- camera
-     * @param view
+     *
+     * @param view the view
      */
     public void openApp(View view) {
         if(s){
@@ -256,16 +292,20 @@ public class Camera_or_Gallery extends AppCompatActivity {
     }
 
     /**
+     * rotatin the picture by 90 degrees.
+     * @param view
+     */
+    public void rotate(View view) {
+        showPic.animate().rotation(showPic.getRotation() + 90).start();
+    }
+
+    /**
      * uploading an imagefrom :
      * 1- gallery
      * 2- camera
-     * @param view
      *
-     * Intents- back to the CreateMission class:
-     * gi- gallery intent.
-     * ci- camera intent.
+     * @param view Intents- back to the CreateMission class: gi- gallery intent. ci- camera intent.
      */
-
     public void upload(View view) {
         switch (i) {
             case 1:
@@ -285,11 +325,6 @@ public class Camera_or_Gallery extends AppCompatActivity {
                         editor.putInt("count", count);
                         editor.commit();
                     }
-                    /*
-                    else if (act == 2){
-                        path = "images/users/" + reAuth.getCurrentUser().getUid() + "/profile";
-                    }
-                     */
                     else {
                         path = "images/users/" + reAuth.getCurrentUser().getUid() + "/" + titlePic.getText().toString();
                         s0 = titlePic.getText().toString();
@@ -325,9 +360,9 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     case 1:
                         Intent gi = new Intent(this, CreateMission.class);
 
-                        gi.putExtra("name", s0);
+                        imagesNames.add(s0);
                         gi.putExtra("check",3);
-                        gi.putExtra("way", path);
+                        imagesLinks.add(path);
                         startActivity(gi);
                         finish();
                         break;
@@ -370,14 +405,12 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         progressDialog.dismiss();
                         Log.d("VE","picture camera uploaded");
-                        //Toast.makeText(Camera_or_Gallery.this, "Successfully Uploaded", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         progressDialog.dismiss();
                         Log.d("NO","didn't work");
-                        //Toast.makeText(Camera_or_Gallery.this, "Failed to upload.", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -391,9 +424,9 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     case 1:
                         Intent ci = new Intent(this, CreateMission.class);
 
-                        ci.putExtra("name", s0);
+                        imagesNames.add(s0);
                         ci.putExtra("check",3);
-                        ci.putExtra("way", path);
+                        imagesLinks.add(path);
                         startActivity(ci);
                         finish();
                         break;
@@ -455,5 +488,4 @@ public class Camera_or_Gallery extends AppCompatActivity {
         }
         return true;
     }
-
 }

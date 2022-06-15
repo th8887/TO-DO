@@ -16,7 +16,12 @@ import com.example.schedulenotification.R;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-
+/**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
+ *An adapter for the calendar listViews
+ */
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder>{
     private final ArrayList<LocalDate> days;
     private final OnItemClickListener mOnItenClickListener;

@@ -6,6 +6,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+
+/**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
+ * shortcuts for Firebase
+ */
+
 public class refFB{
     public static FirebaseAuth reAuth= FirebaseAuth.getInstance();
 

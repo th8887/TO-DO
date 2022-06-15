@@ -10,7 +10,12 @@ import com.example.schedulenotification.R;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-
+/**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
+ * A holder for the calender to build the appearance of the calendar.
+ */
 public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     public final TextView dayOfMonth;
     public final View colorCell;

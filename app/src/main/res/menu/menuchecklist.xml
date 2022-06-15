@@ -29,14 +29,23 @@
         android:orderInCategory="100"
         app:showAsAction="always"
         />
-
+    <item
+        android:id="@+id/cm"
+        android:title="Create Mission📝"
+        android:orderInCategory="100"
+        />
+    <item
+        android:id="@+id/cl"
+        android:title="Check List📃"
+        android:orderInCategory="200"
+        />
     <item
         android:id="@+id/ui"
         android:title="User's Information🔎"
         android:orderInCategory="500"
         />
     <item
-        android:id="@+id/ft"
+        android:id="@+id/tblock"
         android:title="Focus Timer⏱️"
         android:orderInCategory="400"
         />

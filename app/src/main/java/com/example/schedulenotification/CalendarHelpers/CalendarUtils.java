@@ -10,10 +10,15 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+
 /**
- * a class with all the functions that repeat in CalendarView and in WeeklyView
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
+ *A class with all the functions that repeat in CalendarView and in WeeklyView
  * helps to build the month/week activity with t's dates.
  */
+
 public class CalendarUtils {
     public static LocalDate selectedDate;
 

@@ -8,10 +8,13 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import com.example.schedulenotification.R;
-
 /**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
  * A screen with the apps logo that is shown for three seconds before the app starts.
  */
+
 public class EntryScreen extends AppCompatActivity {
     /**
      * the time that the entry screen will stay open (1000 = 1 sec)

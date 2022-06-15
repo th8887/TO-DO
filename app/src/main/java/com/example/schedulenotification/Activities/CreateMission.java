@@ -1,6 +1,7 @@
 package com.example.schedulenotification.Activities;
 
 import static android.content.ContentValues.TAG;
+import static com.example.schedulenotification.Activities.CalendarActivities.CreateEvent.months;
 import static com.example.schedulenotification.Activities.Information.all;
 import static com.example.schedulenotification.Activities.Information.complete;
 import static com.example.schedulenotification.Classes.Notification.channelID;
@@ -31,7 +32,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Spannable;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,21 +75,39 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * An activity to create a mission, to review one and to it creates a notification whe the mission in finished
+ * The type Create mission.
+ *
+ * @author Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version beta
+ * @since 1 /10/2021 An activity to create a mission, to review one and to it creates a notification whe the mission in finished
  */
-public class CreateMission extends AppCompatActivity implements AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener{
+public class CreateMission extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
+        AdapterView.OnItemClickListener, View.OnCreateContextMenuListener{
 
+    /**
+     * The constant refDBUC.
+     */
     public static DatabaseReference refDBUC= database.getReference(
             "Mission/"+ reAuth.getCurrentUser().getUid() +"/uncompleted");
 
+    /**
+     * The constant refDBC.
+     */
     public static DatabaseReference refDBC= database.getReference(
             "Mission/"+ reAuth.getCurrentUser().getUid() +"/completed");
 
+
     EditText t, des;
     Spinner catS;
-    ListView links;
-    RadioButton i0,i1,i2;
+
+    ListView linksNames;
+    /**
+     * The importance of the mission (0-highest, 1- middle, 2-lowest)
+     */
+    RadioButton i0, i1, i2;
+
     RadioGroup iGroup;
+
     Spinner colors;
     /**
      * times- for the start of a mission and the end of one
@@ -95,17 +116,20 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     /**
      * string array of the colors
      */
-    String[] colorsName = { "#FFE3D4", "#ECD5E3","#8FCACA","#ECEAE4", "#FFBF91", "#D4D479", "#CCE2CB", "#FFFFB5"
+    String[] colorsName = { "#FFFFFF","#FFE3D4", "#ECD5E3","#8FCACA","#ECEAE4", "#FFBF91", "#D4D479", "#CCE2CB", "#FFFFB5"
             , "#97C1A9", "#D7EFEF", "#FCB9AA", "#C6DBDA", "#F6EAC2", "#E67C73"};
 
-    String [] names = {"","","","","","","","","","","","","",""};
+    /**
+     * The Names for the colors(mostly blank for good appearance).
+     */
+    String [] names = {"No Color","","","","","","","","","","","","","",""};
 
     User user;
     /**
-     * uid - takes the users id from firebase auth.
-     * n - the category the user adds
+     * @param uid - takes the users id from firebase auth.
+     * @param n - the category the user adds
      */
-    String uid,n;
+    String uid, n;
     /**
      * the user comes back to this activity from to different activities:
      * 1.Camera_or_Gallery- check = 0
@@ -116,25 +140,55 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
      * Strings, boolean and arrayList for the update user's category.
      */
     String name, phone, uID, email;
+    /**
+     * @param c -the array list of the categories
+     */
     ArrayList<String> c;
+    /**
+     * @param a- the active type of the mission(for the User object)
+     */
     boolean a;
 
     /**
      * params for a new Mission.
-     * @param e- end of mission
-     * @param- importance:
-     *          0-very important
-     *          1-less important
-     *          2-not important
-     * @param category- takes the index of the chosen category.
+     *
+     * @param e - end of mission
+     * @param category - takes the index of the chosen category.
+     * @param importance -
+     * 0-very important
+     * 1-less important
+     * 2-not important
      */
     int category;
     /**
      * for a check in when the user goes between activities and he didn't press any importance "RadioButtons"
      */
     int importance=3;
-    String title, description, e, color;
-    ArrayList<String> images= new ArrayList<String>();
+    /**
+     * The Title.
+     *
+     * @param title - the title of the mission.
+     */
+    String title, /**
+     * The Description of the mission
+     */
+    description, /**
+     * The E -  the finish time of the mission
+     */
+    e, /**
+     * The Color that was chosen for the mission.
+     */
+    color;
+    /**
+     * Saves the list of links of the images that the user chose to add.
+     * (this list will be in Camera or Gallery activity too in order to save the links directly from there).
+     */
+    public static ArrayList<String> imagesLinks = new ArrayList<String>();
+    /**
+     * @param imageNames - saves the name of each picture.
+     *                   (this list will be in Camera or Gallery activity too in order to save the names directly from there).
+     */
+    public static ArrayList<String> imagesNames = new ArrayList<String>();
     /**
      * Adapter for the spinner of the categories.
      */
@@ -156,9 +210,15 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
      */
     int p;
     /**
-     * @param colorPos- the index of the chosen color in the spinner.
+     * The Color pos.
+     *
+     * @param colorPos - the index of the chosen color in the spinner.
      */
-    int colorPos;
+    int colorPos, pos;
+    /**
+     * in order to set the datepicker and the timepicker to the time that the user chose.
+     */
+    int year, month, day, hour, minute;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -171,7 +231,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         t=(EditText) findViewById(R.id.t);
         des=(EditText) findViewById(R.id.des);
         catS=(Spinner) findViewById(R.id.catS);
-        links=(ListView) findViewById(R.id.links);
+        linksNames =(ListView) findViewById(R.id.links);
 
         iGroup=(RadioGroup) findViewById(R.id.iGroup);
         i0=(RadioButton) findViewById(R.id.i0);
@@ -182,6 +242,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
         colors = (Spinner) findViewById(R.id.colors);
 
+
         ColorAdapter adpS = new ColorAdapter(this,colorsName, names);
         colors.setAdapter(adpS);
         colors.setOnItemSelectedListener(this);
@@ -191,8 +252,9 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         setSupportActionBar(tb);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        links.setOnItemClickListener(CreateMission.this);
-        links.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        linksNames.setOnItemClickListener(CreateMission.this);
+        linksNames.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        registerForContextMenu(linksNames);
 
         catS.setOnItemSelectedListener(this);
 
@@ -200,8 +262,6 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         uid = fbuser.getUid();
         Query q = refDB.orderByChild("uID").equalTo(uid);
         q.addListenerForSingleValueEvent(VEL);
-
-        images.add("images->");
 
 
         createNotificationChannel();
@@ -231,6 +291,8 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                         s = s.substring(index+(", Ends at:").length());
 
                         m = new Mission(title, importance, description, currentDate, s, category, color);
+                        m.setimagesLinks(imagesLinks);
+                        m.setImagesNames(imagesNames);
                         Log.i("CM","mission updated");
                         startActivity(new Intent(CreateMission.this, CheckList.class));
                         finish();
@@ -246,7 +308,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                         u0.setComplete(complete);
                         u0.setCategory(c);
                         refDB.child(Information.uid).setValue(u0);
-
+                        //if this is a mission, the notification doesn't need to be blocked.
                         status = false;
 
                         m = new Mission(title, importance, description, currentDate, e, category,color);
@@ -259,7 +321,9 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                         editor.putString("end", e);
                         editor.commit();
 
-                        m.setimages(images);
+
+                        m.setimagesLinks(imagesLinks);
+                        m.setImagesNames(imagesNames);
                     }
                     if (check == 1) {
                         SharedPreferences settings = getSharedPreferences("missionInfo", MODE_PRIVATE);
@@ -268,13 +332,18 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                         }
                     }
                     refDBUC.child(title).setValue(m);
-
+/*
+restarts the page to its original start after the mission is saved.
+ */
                     t.setText("");
                     des.setText("");
                     catS.setSelection(0);
+                    colors.setSelection(0);
                     iGroup.clearCheck();
-                    images.clear();
-                    images.add("images");
+                    imagesLinks.clear();
+                    imagesLinks.add("Links");
+                    imagesNames.clear();
+                    imagesNames.add("images->");
                     times.setText("...");
 
                     Log.d("success", "Mission Uploaded");
@@ -360,13 +429,6 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                 case 2: i2.setChecked(true); break;
                 case 3: iGroup.clearCheck(); break;
             }
-            category = settings.getInt("category", -1);
-            catS.post(new Runnable() {
-                @Override
-                public void run() {
-                    catS.setSelection(category);
-                }
-            });
             //in order to get the right index of the chosen color
             int ci= 0;
             while (!settings.getString("color","-1").equals(colorsName[ci])){
@@ -380,34 +442,80 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                 }
             });
 
-            /*loading the images' links from the file*/
-            images.clear();
-            int size = settings.getInt("Status_size", 0);
-            for(int i=0;i<size;i++)
-            {
-                images.add(settings.getString("Status_" + i, null));
+            category = settings.getInt("category", -1);
+            catS.post(new Runnable() {
+                @Override
+                public void run() {
+                    catS.setSelection(category);
+                }
+            });
+
+            /*loading the images' links from the file
+            if (p == 2){
+                imagesLinks.clear();
+                int size = settings.getInt("ImagesLink_Size", 0);
+                for (int i = 0; i < size; i++) {
+                    imagesLinks.add(settings.getString("ImagesLink_" + i, null));
+                }
+
+                imagesNames.clear();
+                size = settings.getInt("ImagesName_Size", 0);
+                for (int i = 0; i < size; i++) {
+                    imagesNames.add(settings.getString("ImagesName_" + i, null));
+                }
             }
-            /*
-            if the user got back from Camera or Gallery Activity, you need to add the links to images.
+
              */
-            if((p == 3) || (images.contains(getI.getStringExtra("way"))))
-            {
-               images.add(getI.getStringExtra("way"));
+            /*else{//if the user cane from camera or gallery.
+                ArrayAdapter<String> adp = new ArrayAdapter<String>(CreateMission.this,
+                        androidx.preference.R.layout.support_simple_spinner_dropdown_item, imagesNames);
+                linksNames.setAdapter(adp);
             }
+
+             */
+
             des.setText(settings.getString("description","fff"));
+/*
+@param months- the list of months that was used in the CreateEvent Activity.
+ */
+            month = 0;
+            while(!(month < 12 && e.startsWith(months[month]))){
+                month++;
+            }
+            month= month + 1 ;
+            e = e.substring(months[month-1].length()+1);
+
+            int p = e.indexOf(", ");
+            int dot = e.indexOf("--");
+            day = Integer.parseInt(e.substring(0,p));
+            year = Integer.parseInt(e.substring(p+2,dot));
+
+            String time = e.substring(dot+2);
+
+            int dote = time.indexOf(":");
+            hour = Integer.parseInt(time.substring(0,dote));
+            minute = Integer.parseInt(time.substring(dote+1));
+
+            binding.dd.updateDate(year, month, day);
+
+            binding.tt.setCurrentHour(hour);
+            binding.tt.setCurrentMinute(minute);
         }
-        else{
-            images.clear();
-            images.add("images->");
+        else{//if the user came for a new mission
+            imagesLinks.clear();
+            imagesNames.clear();
+            imagesLinks.add("links->");
+            imagesNames.add("images->");
         }
         ArrayAdapter<String> adp = new ArrayAdapter<String>(CreateMission.this,
-                androidx.preference.R.layout.support_simple_spinner_dropdown_item, images);
-        links.setAdapter(adp);
+                androidx.preference.R.layout.support_simple_spinner_dropdown_item, imagesNames);
+        linksNames.setAdapter(adp);
     }
 
     /**
      * An OnClick for the fab button.
-     * @param view
+     *
+     * @param view the view
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void addPicture(View view)
@@ -423,7 +531,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
         DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(getApplicationContext());
         DateFormat timeFormat =  android.text.format.DateFormat.getTimeFormat(getApplicationContext());
 
-        e = dateFormat.format(date) + " " + timeFormat.format(time);
+        e = dateFormat.format(date) + "--" + timeFormat.format(time);
         editor.putString("end", e);
 
         editor.putInt("importance", importance);
@@ -465,7 +573,8 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
     /**
      * the user can add a category to the mission.
-     * @param view
+     *
+     * @param view the view
      */
     public void showCustomDialog(View view) {
         final Dialog dialog = new Dialog(CreateMission.this);
@@ -511,70 +620,151 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
      * shows the image for the user in a dialog.(need fixing???)
      * @param per
      * @param view
-     * @param pos
+     * @param position
      * @param l
      */
     @Override
-    public void onItemClick(AdapterView<?> per, View view, int pos, long l) {
+    public void onItemClick(AdapterView<?> per, View view, int position, long l) {
         switch(per.getId()){
             case R.id.colors:
-                color = colorsName[pos];
+                color = colorsName[position];
                 break;
             case R.id.links:
                 if(pos == 0){
                     Toast.makeText(this, "Wrong choose", Toast.LENGTH_SHORT).show();
                 }
-                else {
-                    final Dialog picture = new Dialog(CreateMission.this);
-
-                    picture.setCancelable(true);
-                    picture.setContentView(R.layout.show_picture);
-
-                    ImageView showpic = (ImageView) picture.findViewById(R.id.showpic1);
-                    Button cancel = (Button) picture.findViewById(R.id.cancel);
-                    TextView name = (TextView) picture.findViewById(R.id.name);
-
-                    StorageReference storageRef = storage.getReference();
-
-                    StorageReference imageRef = storageRef.child(images.get(pos));
-
-                    final long ONE_MEGABYTE = 1024 * 1024;
-
-                    imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                        @Override
-                        public void onSuccess(byte[] bytes) {
-                            Bitmap bMap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                            showpic.setImageBitmap(bMap);
-                            name.setText(getIntent().getStringExtra("name"));
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(CreateMission.this, "not Working.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                    cancel.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            picture.cancel();
-                        }
-                    });
-
-                    picture.show();
-                }
                 break;
         }
     }
 
+    /**
+     * creates options for the list of images: to delete, to see the picture or cancel the menu.
+     * @param menu
+     * @param v
+     * @param menuInfo
+     */
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+
+        if (v.getId() == R.id.links) {
+
+            ListView lv = (ListView) v;
+            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
+            String s = (String) lv.getItemAtPosition(acmi.position);
+
+            int i = 0;
+            while ((i < imagesNames.size()) && (!s.equals(imagesNames.get(i)))) {
+                i++;
+            }
+            pos = i;
+        }
+
+        menu.add("Delete Image");
+        menu.add("Show Image");
+        menu.add("Cancel");
+    }
+
+    /**
+     * gives a reaction to every press: deletes the chosen picture,
+     * shows the user the picture or cancels the menu.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch(item.getTitle().toString()){
+            case "Delete Image":
+                imagesNames.remove(pos+1);
+
+                StorageReference storageRef = storage.getReference();
+                StorageReference photoRef = storageRef.child(imagesLinks.get(pos+1));
+
+                photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(CreateMission.this, "deleted", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Toast.makeText(CreateMission.this, "problem", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                imagesLinks.remove(pos+1);
+                ArrayAdapter<String> adp = new ArrayAdapter<String>(CreateMission.this,
+                        androidx.preference.R.layout.support_simple_spinner_dropdown_item, imagesNames);
+                linksNames.setAdapter(adp);
+                break;
+            case "Show Image":
+                final Dialog picture = new Dialog(CreateMission.this);
+
+                picture.setCancelable(true);
+                picture.setContentView(R.layout.show_picture);
+
+                ImageView showpic = (ImageView) picture.findViewById(R.id.showpic1);
+                Button cancel = (Button) picture.findViewById(R.id.cancel);
+                TextView name = (TextView) picture.findViewById(R.id.name);
+
+                storageRef = storage.getReference();
+
+                StorageReference imageRef = storageRef.child(imagesLinks.get(pos));
+
+                final long ONE_MEGABYTE = 3150 * 3150;
+
+                imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bitmap bMap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        showpic.setImageBitmap(bMap);
+                        name.setText(imagesNames.get(pos));
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(CreateMission.this, "not Working.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        picture.cancel();
+                    }
+                });
+                picture.show();
+
+                break;
+            case "Cancel":
+                closeContextMenu();
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * 0.
+     *
+     * @param view the view
+     */
     public void i0(View view) {
         importance=0;
     }
 
+    /**
+     * 1.
+     *
+     * @param view the view
+     */
     public void i1(View view) {
         importance=1;
     }
 
+    /**
+     * 2.
+     *
+     * @param view the view
+     */
     public void i2(View view) {
         importance=2;
     }
@@ -638,7 +828,8 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
 
     /**
      * gets the time and date from the activity
-     * @return
+     *
+     * @return time
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     public long getTime()
@@ -672,12 +863,7 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.info, menu);
-
-        menu.add("Check List📃");
-        menu.add("Calendar📅");
-        menu.add("Focus Timer⏱️");
-        menu.add("User's Information🔎");
+        getMenuInflater().inflate(R.menu.main, menu);
 
         return true;
     }
@@ -685,25 +871,26 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         Intent i;
-        switch(item.getTitle().toString()){
-            case "INFO":
+        switch(item.getItemId()){
+            case R.id.i:
                 i = new Intent(this, About.class);
                 startActivity(i);
-                finish();
                 break;
-            case "Check List📃":
+            case R.id.cm:
+                break;
+            case R.id.cl:
                 i= new Intent(this, CheckList.class);
                 startActivity(i);
                 break;
-            case "Calendar📅":
+            case R.id.c:
                 i= new Intent(this, CalendarView.class);
                 startActivity(i);
                 break;
-            case "Focus Timer⏱️":
+            case R.id.tblock:
                 i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;
-            case "User's Information🔎":
+            case R.id.ui:
                 i= new Intent(this, Information.class);
                 startActivity(i);
                 break;

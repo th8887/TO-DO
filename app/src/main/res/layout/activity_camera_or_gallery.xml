@@ -47,14 +47,30 @@
                 android:layout_height="0px"
                 android:layout_weight="2" />
 
-            <EditText
-                android:id="@+id/titlePic"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="7"
-                android:ems="10"
-                android:hint="enter title"
-                android:inputType="textPersonName" />
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/titlePic"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="70"
+                    android:ems="10"
+                    android:hint="enter title"
+                    android:inputType="textPersonName" />
+
+                <Button
+                    android:id="@+id/button"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="10"
+                    android:background="@null"
+                    app:icon="@drawable/ic_baseline_rotate_right_24"
+                    android:onClick="rotate"/>
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"

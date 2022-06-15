@@ -33,14 +33,45 @@ import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * The type Create event.
+ *
+ * @author Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version beta
+ * @since 1 /10/2021 creates event the synchronize with Google calendar.
+ */
 public class CreateEvent extends AppCompatActivity {
 
-    EditText title, desEvent, locEvent;
-    TextView startEvent, endEvent;
+    /**
+     * The Title.
+     */
+    EditText title, /**
+     * The Des event.
+     */
+    desEvent, /**
+     * The Loc event.
+     */
+    locEvent;
+    /**
+     * The Start event.
+     */
+    TextView startEvent, /**
+     * The End event.
+     */
+    endEvent;
+    /**
+     * The All day.
+     */
     Switch allDay;
 
+    /**
+     * The Ld.
+     */
     LocalDate ld;
 
+    /**
+     * The A.
+     */
     boolean a;
     /**
      * for each timer-
@@ -51,14 +82,62 @@ public class CreateEvent extends AppCompatActivity {
      *
      * @param - time1-> for the time in the time picker.
      */
-    String time1, time2, date1, date2;
-    int hour1, min1, year1, month1, day1,hour2,min2, year2, month2, day2;
+    String time1, /**
+     * The Time 2.
+     */
+    time2, /**
+     * The Date 1.
+     */
+    date1, /**
+     * The Date 2.
+     */
+    date2;
+    /**
+     * The Hour 1.
+     */
+    int hour1, /**
+     * The Min 1.
+     */
+    min1, /**
+     * The Year 1.
+     */
+    year1, /**
+     * The Month 1.
+     */
+    month1, /**
+     * The Day 1.
+     */
+    day1, /**
+     * The Hour 2.
+     */
+    hour2, /**
+     * The Min 2.
+     */
+    min2, /**
+     * The Year 2.
+     */
+    year2, /**
+     * The Month 2.
+     */
+    month2, /**
+     * The Day 2.
+     */
+    day2;
 
+    /**
+     * The Tb.
+     */
     Toolbar tb;
 
-    String [] months = {"January","Febuary","March","April","May","June"
+    /**
+     * The Months.
+     */
+    public static String [] months = {"January","Febuary","March","April","May","June"
             ,"July","August","September","October","November","December"};
 
+    /**
+     * The first date of the event
+     */
     LocalDate fdate;
 
 
@@ -98,23 +177,42 @@ public class CreateEvent extends AppCompatActivity {
 
     /**
      * creates a date and time picker for the beginning
-     * @param view
+     *
+     * @param view the view
      */
     public void start(View view) {
+        if(!startEvent.getText().toString().equals("")) {
+            String s = startEvent.getText().toString();
+            String d = s.substring(0, s.indexOf("--") );
+            String t = s.substring(s.indexOf("--") + 2);
+            spiltDates(year1, month1, day1, hour1, min1, d, t, 1);
+        }
         createPickers(startEvent, 1);
     }
 
     /**
      * creates a date and time picker for the end of the event
-     * @param view
+     *
+     * @param view the view
      */
-    public void end(View view) { createPickers(endEvent, 2); }
+    public void end(View view) {
+        if(!endEvent.getText().toString().equals("")) {
+            String s = endEvent.getText().toString();
+            String d = s.substring(0, s.indexOf("--") + 1);
+            String t = s.substring(s.indexOf("--") + 2);
+            spiltDates(year2, month2, day2, hour2, min2, d, t, 2);
+        }
+        else{//a blank situation
+            createPickers(endEvent, 3);
+        }
+        createPickers(endEvent, 2);
+    }
 
     /**
-     * @param path-  the chosen TextView - if it's startEvent- 1
-     *            if it's endEvent- 2
-     * to get the right time and date to pass to the intent we need the path to each TextView in order to not write the same code twice.
-     * @param t - the chosen text view in the activity(startEvent or endEvent).
+     * Create pickers.
+     *
+     * @param t    - the chosen text view in the activity(startEvent or endEvent).
+     * @param path -  the chosen TextView - if it's startEvent- 1            if it's endEvent- 2 to get the right time and date to pass to the intent we need the path to each TextView in order to not write the same code twice.
      */
     public void createPickers(TextView t, int path){
         final Dialog dialog = new Dialog(CreateEvent.this);
@@ -128,6 +226,21 @@ public class CreateEvent extends AppCompatActivity {
         Button set= dialog.findViewById(R.id.set);
         DatePicker dd = dialog.findViewById(R.id.dd);
         TimePicker tt = dialog.findViewById(R.id.tt);
+
+        switch (path){
+            case 1:
+                dd.updateDate(year1, month1, day1);
+                tt.setCurrentHour(hour1);
+                tt.setCurrentMinute(min1);
+                break;
+            case 2:
+                dd.updateDate(year2, month2, day2);
+                tt.setCurrentHour(hour2);
+                tt.setCurrentMinute(min2);
+                break;
+            case 3:
+                break;
+        }
 
         set.setOnClickListener(new View.OnClickListener() {
 
@@ -171,7 +284,8 @@ public class CreateEvent extends AppCompatActivity {
 
     /**
      * saves the event in googleCalendar.
-     * @param view
+     *
+     * @param view the view
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void saveEvent(View view) {
@@ -265,7 +379,7 @@ public class CreateEvent extends AppCompatActivity {
                 i= new Intent(this, CalendarView.class);
                 startActivity(i);
                 break;
-            case R.id.ft:
+            case R.id.tblock:
                 i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;

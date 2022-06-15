@@ -1,5 +1,7 @@
 package com.example.schedulenotification.Activities;
 
+import static com.example.schedulenotification.Activities.CreateMission.imagesLinks;
+import static com.example.schedulenotification.Activities.CreateMission.imagesNames;
 import static com.example.schedulenotification.Activities.CreateMission.refDBC;
 import static com.example.schedulenotification.Activities.CreateMission.refDBUC;
 import static com.example.schedulenotification.Activities.Information.all;
@@ -38,8 +40,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 /**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
  * shows the uncompleted mission, gives an opportunity to prioritize them, to see the completed ones
- * and to create new ones.
+ *and to create new ones.
  */
 public class CheckList extends AppCompatActivity implements AdapterView.OnItemClickListener, View.OnCreateContextMenuListener {
 
@@ -83,7 +88,6 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
 
         titles.setOnItemClickListener(this);
         titles.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        //titles.setOnCreateContextMenuListener(this);
         registerForContextMenu(titles);
 
         int mission = getIntent().getIntExtra("check",-1);
@@ -185,7 +189,8 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
         int i;
 
         User u0;
-
+//true- came from completed list
+        //false- came from uncompleted list
         if (!b) {
             switch (item.getTitle().toString()) {
                 case "Check Mission":
@@ -231,13 +236,9 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                     editor.putInt("category", m.getCategory());
                     editor.putString("description", m.getDescription());
                     editor.putString("color", m.getColor());
-                    editor.putInt("Status_size", m.getImages().size());
+                    imagesLinks = m.getImagesLinks();
+                    imagesNames = m.getImagesNames();
 
-                    for (int t = 0; t < m.getImages().size(); t++) {
-                        editor.remove("Status_" + t);
-                        editor.putString("Status_" + t, m.getImages().get(t));
-                    }
-                    //editor.putString("uID",reAuth.getCurrentUser().getUid());
                     editor.commit();
 
                     startActivity(si);
@@ -305,7 +306,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
 
                     break;
                 case "Delete Mission":
-                    refDBUC.child(m.getTitle()).removeValue();
+                    refDBC.child(m.getTitle()).removeValue();
 
                     all = all - 1;
                     complete = complete - 1;
@@ -490,7 +491,7 @@ public class CheckList extends AppCompatActivity implements AdapterView.OnItemCl
                 i= new Intent(this, CalendarView.class);
                 startActivity(i);
                 break;
-            case R.id.ft:
+            case R.id.tblock:
                 i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;

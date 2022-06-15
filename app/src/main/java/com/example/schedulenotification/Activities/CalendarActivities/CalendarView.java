@@ -31,11 +31,21 @@ import com.example.schedulenotification.R;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * The type Calendar view.
+ *
+ * @author Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version beta
+ * @since 1 /10/2021 creates the calendar for the user with an option to add events to each date.
+ */
 public class CalendarView extends AppCompatActivity implements CalendarAdapter.OnItemClickListener{
 
+    /**
+     * the name of the month in the year
+     */
     TextView monthYear;
-    RecyclerView dates;
 
+    RecyclerView dates;
     Toolbar tb;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -110,22 +120,24 @@ public class CalendarView extends AppCompatActivity implements CalendarAdapter.O
     }
 
     /**
-     * moves to the previous month
-     * @param view
-     */
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void previousMonthAction(View view) {
-        selectedDate = selectedDate.minusMonths(1);
-        setMonthView();
-    }
-
-    /**
      * moves to the next month
-     * @param view
+     *
+     * @param view the view
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void nextMonthAction(View view) {
         selectedDate = selectedDate.plusMonths(1);
+        setMonthView();
+    }
+
+    /**
+     * moves to the previous month
+     *
+     * @param view the view
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void previousMonthAction(View view) {
+        selectedDate = selectedDate.minusMonths(1);
         setMonthView();
     }
 
@@ -157,7 +169,9 @@ public class CalendarView extends AppCompatActivity implements CalendarAdapter.O
                 i= new Intent(this, CheckList.class);
                 startActivity(i);
                 break;
-            case R.id.ft:
+            case R.id.c:
+                break;
+            case R.id.tblock:
                 i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;

@@ -4,11 +4,16 @@ package com.example.schedulenotification.Adapters;
 import android.content.Context;
 import android.widget.ArrayAdapter;
 
+
 /**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
  * creates a circular list view the puts the middle object first.
  * On order to have a roll time picker in the Focus Timer Activity.
- * @param <T>
+ *  @param <T>
  */
+
 public class rollAdapter< T > extends ArrayAdapter< T >
 {
 

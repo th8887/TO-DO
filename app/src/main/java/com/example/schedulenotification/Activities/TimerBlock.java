@@ -5,7 +5,6 @@ import static com.example.schedulenotification.Classes.Listener.status;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -44,7 +43,12 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
      * @param sec - gets the seconds that was chosen in the listView
      */
 
-    long START_TIME_IN_MILLIS=0 , mTimeLeftInMillis, hour, minute, sec;
+    long START_TIME_IN_MILLIS=0 , mTimeLeftInMillis;
+    /**
+     * saves the numbers of the minute, hour and second that the user chose
+     * for the timer.
+     */
+    int hour, min ,seconds ;
 
     private CountDownTimer mCountDownTimer;
 
@@ -129,7 +133,7 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
                 cd.setVisibility(View.VISIBLE);
 
                 if(cd.getText().toString().equals("00:00:00")||b){
-                    START_TIME_IN_MILLIS = hour + minute + sec;
+                    START_TIME_IN_MILLIS = (long) (hour*3600000 + min*60000 + seconds*1000);
                     mTimeLeftInMillis = START_TIME_IN_MILLIS;
                 }
                 if (mTimerRunning) {
@@ -144,7 +148,7 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                START_TIME_IN_MILLIS = hour + minute + sec;
+                START_TIME_IN_MILLIS = (long) (hour*3600000 + min*60000 + seconds*1000);
                 mTimeLeftInMillis = START_TIME_IN_MILLIS;
                 resetTimer();
             }
@@ -201,7 +205,6 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
 
             @Override
             public void onFinish() {
-                //final MediaPlayer mp = MediaPlayer.create(this, R.raw.sound);
                 Toast.makeText(TimerBlock.this, "Done!", Toast.LENGTH_SHORT).show();
                 playSound(R.raw.achieve);
 
@@ -252,7 +255,6 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
     private void updateCountDownText() {
         int minutes = (int) ((mTimeLeftInMillis%3600000) / 1000) / 60;
         int seconds = (int) ((mTimeLeftInMillis%3600000) / 1000) % 60;
-        seconds++;
         int hour= (int) (mTimeLeftInMillis / 3600000);
 
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minutes, seconds);
@@ -278,6 +280,17 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
         s.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * @des reset the time to the time the user chose in the first place.
+     */
+    private void resetTimer() {
+        updateCountDownText();
+
+        reset.setVisibility(View.INVISIBLE);
+        clear.setVisibility(View.INVISIBLE);
+
+        start.setVisibility(View.VISIBLE);
+    }
 
     /**
      * turns the chosen time to milliseconds and if the user wants to change the time
@@ -292,51 +305,34 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
         switch(par.getId()){
             case R.id.m:
                 minutet.setText("minutes:" + adpm.getItem(pos));
+                min = Integer.parseInt(adpm.getItem(pos));
                 if(!cd.getText().toString().equals("00:00:00")){
                     b=true;
                 }
-                minute = (long) (Integer.parseInt(adpm.getItem(pos))*60000);
                 break;
             case R.id.h:
                 hourt.setText("hours:" + adph.getItem(pos));
+                hour = Integer.parseInt(adpm.getItem(pos));
                 if(!cd.getText().toString().equals("00:00:00")) {
                     b = true;
                 }
-                hour = (long) (Integer.parseInt(adph.getItem(pos))*3600000);
                 break;
             case R.id.s:
                 sect.setText("seconds:" + adps.getItem(pos));
+                seconds = Integer.parseInt(adpm.getItem(pos));
                 if(!cd.getText().toString().equals("00:00:00")) {
                     b = true;
                 }
-                sec = (long) (Integer.parseInt(adps.getItem(pos))*1000);
                 break;
         }
 
     }
 
 
-    /**
-     * @des reset the time to the time the user chose in the first place.
-     */
-    private void resetTimer() {
-        updateCountDownText();
-
-        reset.setVisibility(View.INVISIBLE);
-        clear.setVisibility(View.INVISIBLE);
-
-        start.setVisibility(View.VISIBLE);
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.info, menu);
-
-        menu.add("Create A mission📝");
-        menu.add("Check List📃");
-        menu.add("Calendar📅");
-        menu.add("User's Information🔎");
+        getMenuInflater().inflate(R.menu.main, menu);
 
         return true;
     }
@@ -344,25 +340,26 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         Intent i;
-        switch(item.getTitle().toString()){
-            case "INFO":
+        switch(item.getItemId()){
+            case R.id.i:
                 i = new Intent(this, About.class);
                 startActivity(i);
-                finish();
                 break;
-            case "Create A mission📝":
-                i= new Intent(this, CreateMission.class);
+            case R.id.cm:
+                i = new Intent(this, CreateMission.class);
                 startActivity(i);
                 break;
-            case "Check List📃":
+            case R.id.cl:
                 i= new Intent(this, CheckList.class);
                 startActivity(i);
                 break;
-            case "Calendar📅":
+            case R.id.c:
                 i= new Intent(this, CalendarView.class);
                 startActivity(i);
                 break;
-            case "User's Information🔎":
+            case R.id.tblock:
+                break;
+            case R.id.ui:
                 i= new Intent(this, Information.class);
                 startActivity(i);
                 break;

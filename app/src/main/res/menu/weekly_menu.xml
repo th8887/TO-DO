@@ -29,7 +29,12 @@
         android:orderInCategory="500"
         />
     <item
-        android:id="@+id/ft"
+        android:id="@+id/c"
+        android:title="Calendar📅"
+        android:orderInCategory="300"
+        />
+    <item
+        android:id="@+id/tblock"
         android:title="Focus Timer⏱️"
         android:orderInCategory="400"
         />

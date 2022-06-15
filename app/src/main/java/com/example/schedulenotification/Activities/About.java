@@ -14,13 +14,22 @@ import com.example.schedulenotification.Activities.CalendarActivities.CalendarVi
 import com.example.schedulenotification.R;
 
 /**
- * An activity with information about the creator of the app and ways to contact her is case of problems.
+ * The type About.
+ *
+ * @author Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version beta
+ * @since 1 /10/2021 An activity with information about the creator of the app and ways to contact her is case of problems.
  */
 public class About extends AppCompatActivity {
 
+
     Toolbar tb;
+
     ImageView profile;
 
+    /**
+     * The Path the picture gets after being uploaded.
+     */
     int path;
 
     @Override
@@ -47,11 +56,7 @@ public class About extends AppCompatActivity {
             menu.add("Sign-in");
         }
         else {
-            menu.add("Create A Mission📝");
-            menu.add("Check List📃");
-            menu.add("Calendar📅");
-            menu.add("Focus Timer⏱️");
-            menu.add("User's Information🔎");
+            getMenuInflater().inflate(R.menu.main, menu);
         }
         return true;
     }
@@ -67,25 +72,29 @@ public class About extends AppCompatActivity {
             }
         }
         else {
-            switch (item.getTitle().toString()) {
-                case "Create A Mission📝":
+            switch(item.getItemId()){
+                case R.id.i:
+                    i = new Intent(this, About.class);
+                    startActivity(i);
+                    break;
+                case R.id.cm:
                     i = new Intent(this, CreateMission.class);
                     startActivity(i);
                     break;
-                case "Check List📃":
-                    i = new Intent(this, CheckList.class);
+                case R.id.cl:
+                    i= new Intent(this, CheckList.class);
                     startActivity(i);
                     break;
-                case "Calendar📅":
-                    i = new Intent(this, CalendarView.class);
+                case R.id.c:
+                    i= new Intent(this, CalendarView.class);
                     startActivity(i);
                     break;
-                case "Focus Timer⏱️":
-                    i = new Intent(this, TimerBlock.class);
+                case R.id.tblock:
+                    i= new Intent(this, TimerBlock.class);
                     startActivity(i);
                     break;
-                case "User's Information🔎":
-                    i = new Intent(this, Information.class);
+                case R.id.ui:
+                    i= new Intent(this, Information.class);
                     startActivity(i);
                     break;
             }

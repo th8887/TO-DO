@@ -11,8 +11,12 @@ import android.widget.TextView;
 import com.example.schedulenotification.R;
 
 /**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
  * creates an adapter with colors for the spinner in CreateMission activity.
  */
+
 public class ColorAdapter extends BaseAdapter {
 
     Context context;

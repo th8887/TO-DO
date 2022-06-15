@@ -39,7 +39,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The type Weekly calendar.
+ *
+ * @author Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version beta
+ * @since 1 /10/2021 Shows a Weekly view with the chosen date.
+ */
 public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter.OnItemClickListener, AdapterView.OnItemClickListener{
+
 
     TextView title;
     RecyclerView dates;
@@ -120,12 +128,23 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
         if (cursor!=null&&cursor.getCount()>0&&cursor.moveToFirst()) {
             do {
                 events.add(cursor.getString(1));
-                dates.add("Title: " + cursor.getString(1) +
-                        "\nDescription: " + cursor.getString(2) +
-                        "\nBegin: " + String.valueOf(new Date(Long.parseLong(cursor.getString(3))  * 1000L)) +
-                        "\nEnd: " +  String.valueOf(new Date(Long.parseLong(cursor.getString(4))  * 1000L)) +
-                        "\nLocation:" + cursor.getString(6) +
-                        "\nAll Day:" + cursor.getString(5));
+
+                if(Integer.parseInt(cursor.getString(5)) == 1){
+                    dates.add("Title: " + cursor.getString(1) +
+                            "\nDescription: " + cursor.getString(2) +
+                            "\nBegin: " + String.valueOf(new Date(Long.parseLong(cursor.getString(3))  * 1000L)) +
+                            "\nEnd: " +  String.valueOf(new Date(Long.parseLong(cursor.getString(4))  * 1000L)) +
+                            "\nLocation:" + cursor.getString(6) +
+                            "\nAll Day: True");
+                }
+                else{
+                    dates.add("Title: " + cursor.getString(1) +
+                            "\nDescription: " + cursor.getString(2) +
+                            "\nBegin: " + String.valueOf(new Date(Long.parseLong(cursor.getString(3))  * 1000L)) +
+                            "\nEnd: " +  String.valueOf(new Date(Long.parseLong(cursor.getString(4))  * 1000L)) +
+                            "\nLocation:" + cursor.getString(6) +
+                            "\nAll Day: False");
+                }
             } while ( cursor.moveToNext());
         }
 
@@ -154,10 +173,10 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
     }
 
 
-
     /**
      * moves the user to the next week
-     * @param view
+     *
+     * @param view the view
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void nextWeekAction(View view) {
@@ -167,7 +186,8 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
 
     /**
      * moves the user to the previous week
-     * @param view
+     *
+     * @param view the view
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void previousWeekAction(View view) {
@@ -177,7 +197,8 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
 
     /**
      * sends the user to create a new event.
-     * @param view
+     *
+     * @param view the view
      */
     public void CreateNewEvent(View view) {
         Intent i = new Intent(this, CreateEvent.class);
@@ -205,7 +226,8 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
      * @param id
      */
     @Override
-    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+    public void onItemClick(AdapterView<?> parent,
+                            View v, int position, long id) {
         pos = position;
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this)
@@ -242,7 +264,9 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
                 i= new Intent(this, CheckList.class);
                 startActivity(i);
                 break;
-            case R.id.ft:
+            case R.id.c:
+                break;
+            case R.id.tblock:
                 i= new Intent(this, TimerBlock.class);
                 startActivity(i);
                 break;

@@ -15,9 +15,13 @@ import com.example.schedulenotification.Activities.CreateMission;
 import com.example.schedulenotification.R;
 
 /**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
  * A Broadcast receiver that shots a notification to the user about the finished mission
  * (the mission was supposed to be done by the time that the notification pops up)
  */
+
 public class Notification extends BroadcastReceiver {
     public static final int notificationID = 1;
     public static final String channelID = "channelID";

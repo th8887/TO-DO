@@ -1,7 +1,12 @@
 package com.example.schedulenotification.Classes;
 
 import java.util.ArrayList;
-
+/**
+ * @author		Tahel Hazan <th8887@bs.amalnet.k12.il>
+ * @version	beta
+ * @since		1/10/2021
+ * A class for mission the user creates. In order to upload the mission each user creates to firebase
+ */
 public class Mission {
     private String title;
     private boolean active; //true- completed. false- yet complete.
@@ -10,7 +15,8 @@ public class Mission {
     private String openDate; //dd MM yyyy-hh:mm
     private String dueDate;//dd MM yyyy-hh:mm
     private int category;//the index of the chosen category from the list
-    private ArrayList<String> images;//links of the images.
+    private ArrayList<String> imagesLinks;//links of the images.
+    private ArrayList<String> imagesNames;// The names of each image.
     private String color;//color chosen for the mission
 
     public Mission(String title, int importance,
@@ -23,8 +29,10 @@ public class Mission {
         this.openDate = openDate;
         this.dueDate = dueDate;
         this.category = category;
-        this.images= new ArrayList<String>();
-        images.add("images");
+        this.imagesLinks = new ArrayList<String>();
+        this.imagesNames = new ArrayList<String>();
+        imagesLinks.add("links->");
+        imagesNames.add("images->");
         this.color = color;
         this.active= false;
     }
@@ -48,9 +56,11 @@ public class Mission {
         this.dueDate = dueDate;
     }
 
-    public void setimages(ArrayList<String> images) {
-        this.images = images;
+    public void setimagesLinks(ArrayList<String> images) {
+        this.imagesLinks = images;
     }
+
+    public void setImagesNames(ArrayList<String> imagesNames) { this.imagesNames = imagesNames; }
 
     public String getColor() { return color; }
 
@@ -96,8 +106,9 @@ public class Mission {
         return category;
     }
 
-    public ArrayList<String> getImages(){return images;}
+    public ArrayList<String> getImagesLinks(){return imagesLinks;}
 
+    public ArrayList<String> getImagesNames() { return imagesNames; }
     @Override
     public String toString() {
         return "Mission{" +
@@ -108,7 +119,7 @@ public class Mission {
                 ", openDate='" + openDate + '\'' +
                 ", dueDate='" + dueDate + '\'' +
                 ", category=" + category +
-                ", images=" + images +
+                ", images=" + imagesLinks +
                 ",color=" + color +
                 '}';
     }
