@@ -74,16 +74,8 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     User user;
 
     Toolbar tb;
-    /**
-     * @param use- the use for the profile: with camera or gallery.
-     * 1=Camera
-     * 2=Gallery
-     */
-    int use;
 
-    Uri selectedImage;
-
-    Bundle extras;
+    boolean b = false;
 
     @SuppressLint("ResourceType")
     @Override
@@ -109,6 +101,10 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         setSupportActionBar(tb);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        if (getIntent().getIntExtra("check", -1) == 3) {
+            uploadProfile(getIntent().getStringExtra("way"));
+            b= true;
+        }
 
         checkPermission(42, Manifest.permission.READ_CALENDAR,
                 Manifest.permission.WRITE_CALENDAR,
@@ -116,6 +112,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                 Manifest.permission.CAMERA,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.SCHEDULE_EXACT_ALARM);
+
 
         Toast.makeText(this, "If you change things, make sure to press update connect!", Toast.LENGTH_SHORT).show();
     }
@@ -157,13 +154,12 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                     complete = user.getComplete();
                     all = user.getAll();
 
-                    if (getIntent().getIntExtra("check", -1) == 3) {
-                        uploadProfile(getIntent().getStringExtra("way"));
-                    } else {
-                        if (!user.getProfile().equals(" ")) {
-                            uploadProfile(user.getProfile());
-                        }
+
+                    if ((!user.getProfile().equals(" ")) && (b == false)) {
+                        uploadProfile(user.getProfile());
                     }
+                    b= false;
+
 
                     showCom.setText("Completed Missions: " + complete + "/" + all);
 
@@ -178,6 +174,8 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         public void onCancelled(@NonNull DatabaseError error) {
             Log.w(TAG, "Failed to read value.", error.toException());
         }
+
+
     };
 
     /**
@@ -186,7 +184,6 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     @Override
     public void onStart() {
         super.onStart();
-
 
         FirebaseUser fbuser = reAuth.getCurrentUser();
         if (fbuser == null) {
@@ -205,10 +202,17 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         Boolean isChecked = settings.getBoolean("stayConnect", false);
         cBconnectview.setChecked(isChecked);
 
-        if ((!(getIntent().getStringExtra("way") == null)) && (getIntent().getIntExtra("check", -1) == 3)) {
-            uploadProfile(getIntent().getStringExtra("way"));
-        }
+    }
 
+    /**
+     * if the user wants to pick a picture for his account
+     *
+     * @param view
+     */
+    public void pickPic(View view) {
+        Intent pic2 = new Intent(this, Camera_or_Gallery.class);
+        pic2.putExtra("page", 2);
+        startActivity(pic2);
     }
 
     /**
@@ -236,18 +240,6 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                 Toast.makeText(Information.this, "not Working.", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-
-    /**
-     * if the user wants to pick a picture for his account
-     *
-     * @param view
-     */
-    public void pickPic(View view) {
-        Intent pic2 = new Intent(this, Camera_or_Gallery.class);
-        pic2.putExtra("page", 2);
-        startActivity(pic2);
     }
 
     /**
@@ -327,6 +319,12 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
                         , category);
                 categories.setAdapter(adp2);
 
+                User newU= new User(name,email,phone,uid,Information.profilelink,true);
+                newU.setCategory(category);
+                newU.setComplete(complete);
+                newU.setAll(all);
+                refDB.child(uid).setValue(newU);
+
                 dialog.dismiss();
             }
         });
@@ -368,8 +366,13 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
-        menu.add("Delete Category");
-        menu.add("Cancel");
+        if (pos == 0 ){
+            Toast.makeText(this, "you cant delete this", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            menu.add("Delete Category");
+            menu.add("Cancel");
+        }
     }
 
     /**

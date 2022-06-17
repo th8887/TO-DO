@@ -22,6 +22,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 
@@ -33,6 +35,8 @@ import com.example.schedulenotification.Activities.TimerBlock;
 import com.example.schedulenotification.CalendarHelpers.CalendarAdapter;
 import com.example.schedulenotification.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -86,7 +90,6 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
         eventsList.setOnItemClickListener(this);
         eventsList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-        //getEvents(0);
 
         setWeekView();
 
@@ -108,7 +111,7 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setEventAdapter() {
-        //getEvents(1);
+
         String[] projection = new String[] { CalendarContract.Events.CALENDAR_ID, CalendarContract.Events.TITLE, CalendarContract.Events.DESCRIPTION, CalendarContract.Events.DTSTART, CalendarContract.Events.DTEND, CalendarContract.Events.ALL_DAY, CalendarContract.Events.EVENT_LOCATION };
 
         Calendar startTime = Calendar.getInstance();
@@ -117,7 +120,7 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
         startTime.set(selectedDate.getYear(), selectedDate.getMonthValue()-1, selectedDate.getDayOfMonth(),0,0,0);
 
         Calendar endTime= Calendar.getInstance();
-        //endTime.add(Calendar.DATE, 1);
+
         endTime.set(selectedDate.getYear(), selectedDate.getMonthValue()-1, selectedDate.getDayOfMonth(),23,59,59);
 
         String selection = "(( " + CalendarContract.Events.DTSTART + " >= " + startTime.getTimeInMillis() + " ) AND ( " + CalendarContract.Events.DTSTART + " <= " + endTime.getTimeInMillis() + " ) AND ( deleted != 1 ))";
@@ -125,28 +128,33 @@ public class WeeklyCalendar extends AppCompatActivity implements CalendarAdapter
 
         List<String> events = new ArrayList<>();
         ArrayList<String> dates = new ArrayList<String>();
-        if (cursor!=null&&cursor.getCount()>0&&cursor.moveToFirst()) {
+
+
+        if ((cursor!=null)&&(cursor.getCount()>0)&&(cursor.moveToFirst())) {
             do {
                 events.add(cursor.getString(1));
 
                 if(Integer.parseInt(cursor.getString(5)) == 1){
                     dates.add("Title: " + cursor.getString(1) +
                             "\nDescription: " + cursor.getString(2) +
-                            "\nBegin: " + String.valueOf(new Date(Long.parseLong(cursor.getString(3))  * 1000L)) +
-                            "\nEnd: " +  String.valueOf(new Date(Long.parseLong(cursor.getString(4))  * 1000L)) +
+                            "\nBegin: " + DateFormat.getDateInstance(DateFormat.FULL).format(new Date(Long.parseLong(cursor.getString(3))))+
+                            "\nEnd: " +  DateFormat.getDateInstance(DateFormat.FULL).format(new Date(Long.parseLong(cursor.getString(4)))) +
                             "\nLocation:" + cursor.getString(6) +
                             "\nAll Day: True");
                 }
                 else{
                     dates.add("Title: " + cursor.getString(1) +
                             "\nDescription: " + cursor.getString(2) +
-                            "\nBegin: " + String.valueOf(new Date(Long.parseLong(cursor.getString(3))  * 1000L)) +
-                            "\nEnd: " +  String.valueOf(new Date(Long.parseLong(cursor.getString(4))  * 1000L)) +
+                            "\nBegin: " + DateFormat.getDateInstance(DateFormat.FULL). format(new Date(Long.parseLong(cursor.getString(3))))+ "--" +
+                                    DateFormat.getTimeInstance(DateFormat.SHORT). format(new Date(Long.parseLong(cursor.getString(3))))+
+                            "\nEnd: " +  DateFormat.getDateInstance(DateFormat.LONG).format(new Date(Long.parseLong(cursor.getString(4)))) + "--" +
+                            DateFormat.getTimeInstance(DateFormat.SHORT). format(new Date(Long.parseLong(cursor.getString(4))))+
                             "\nLocation:" + cursor.getString(6) +
                             "\nAll Day: False");
                 }
             } while ( cursor.moveToNext());
         }
+        cursor.close();
 
         dailyEvents = dates;
 

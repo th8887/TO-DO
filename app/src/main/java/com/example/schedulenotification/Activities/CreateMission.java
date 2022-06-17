@@ -384,6 +384,26 @@ restarts the page to its original start after the mission is saved.
                         androidx.preference.R.layout.support_simple_spinner_dropdown_item,
                         c);
                 catS.setAdapter(adp);
+//in order to deal with asynctasks problems:
+                if(getIntent().getIntExtra("check",-1) == 2 ||
+                        getIntent().getIntExtra("check",-1) == 3){
+                    SharedPreferences settings= getSharedPreferences("missionInfo", MODE_PRIVATE);
+                    category = settings.getInt("category", -1);
+
+                    catS.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            catS.setSelection(category+1);
+                        }
+                    });
+                    importance = settings.getInt("importance", -1);
+                    switch (importance){
+                        case 0: i0.setChecked(true);break;
+                        case 1: i1.setChecked(true); break;
+                        case 2: i2.setChecked(true); break;
+                        case 3: iGroup.clearCheck(); break;
+                    }
+                }
             }
         }
 
@@ -423,12 +443,6 @@ restarts the page to its original start after the mission is saved.
             else{
                 times.setText("Starts at:" + currentDate + ", Ends at:" + e);
             }
-            switch (settings.getInt("importance", -1)){
-                case 0: i0.setChecked(true);break;
-                case 1: i1.setChecked(true); break;
-                case 2: i2.setChecked(true); break;
-                case 3: iGroup.clearCheck(); break;
-            }
             //in order to get the right index of the chosen color
             int ci= 0;
             while (!settings.getString("color","-1").equals(colorsName[ci])){
@@ -439,15 +453,6 @@ restarts the page to its original start after the mission is saved.
                 @Override
                 public void run() {
                     colors.setSelection(finalCi);
-                }
-            });
-
-            category = settings.getInt("category", -1);
-
-            catS.post(new Runnable() {
-                @Override
-                public void run() {
-                    catS.setSelection(category);
                 }
             });
 
@@ -607,9 +612,7 @@ restarts the page to its original start after the mission is saved.
                 color = colorsName[position];
                 break;
             case R.id.links:
-                if(pos == 0){
-                    Toast.makeText(this, "Wrong choose", Toast.LENGTH_SHORT).show();
-                }
+                pos = position;
                 break;
         }
     }
@@ -623,23 +626,27 @@ restarts the page to its original start after the mission is saved.
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
-
-        if (v.getId() == R.id.links) {
-
-            ListView lv = (ListView) v;
-            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
-            String s = (String) lv.getItemAtPosition(acmi.position);
-
-            int i = 0;
-            while ((i < imagesNames.size()) && (!s.equals(imagesNames.get(i)))) {
-                i++;
-            }
-            pos = i;
+        if(pos == 0){
+            Toast.makeText(this, "Wrong choose", Toast.LENGTH_SHORT).show();
         }
+        else {
+            if (v.getId() == R.id.links) {
 
-        menu.add("Delete Image");
-        menu.add("Show Image");
-        menu.add("Cancel");
+                ListView lv = (ListView) v;
+                AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
+                String s = (String) lv.getItemAtPosition(acmi.position);
+
+                int i = 0;
+                while ((i < imagesNames.size()) && (!s.equals(imagesNames.get(i)))) {
+                    i++;
+                }
+                pos = i;
+            }
+
+            menu.add("Delete Image");
+            menu.add("Show Image");
+            menu.add("Cancel");
+        }
     }
 
     /**

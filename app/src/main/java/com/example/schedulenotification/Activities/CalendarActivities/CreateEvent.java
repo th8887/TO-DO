@@ -302,12 +302,15 @@ public class CreateEvent extends AppCompatActivity {
             java.util.Calendar startTime = java.util.Calendar.getInstance();
             startTime.set(year1, month1-1, day1, hour1, min1);
             java.util.Calendar endTime = java.util.Calendar.getInstance();
+            /*
             if(a){
                 endTime.set(year2, month2-1, day2+1, hour2, min2);
             }
-            else {
-                endTime.set(year2, month2 - 1, day2, hour2, min2);
-            }
+
+             */
+
+            endTime.set(year2, month2 - 1, day2, hour2, min2);
+
             info.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
                     startTime.getTimeInMillis());
             info.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
