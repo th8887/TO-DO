@@ -156,6 +156,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
 
                     if ((!user.getProfile().equals(" ")) && (b == false)) {
+                        profilelink = user.getProfile();
                         uploadProfile(user.getProfile());
                     }
                     b= false;
@@ -280,6 +281,23 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
             SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean("stayConnect", false);
             editor.commit();
+            name = n.getText().toString();
+            email = e.getText().toString();
+            phone = p.getText().toString();
+            if (profilelink.equals("")){
+                profilelink = " ";
+            }
+
+            String s = showCom.getText().toString();
+            s = s.substring(20);
+            complete = Integer.parseInt(s.substring(0, 1));
+            all = Integer.parseInt(s.substring(2));
+
+            User u2 = new User(name, email, phone, uid, profilelink, false);
+            u2.setCategory(category);
+            u2.setComplete(complete);
+            u2.setAll(all);
+            refDB.child(uid).setValue(u2);
 
             Intent si = new Intent(Information.this, Authentication.class);
             startActivity(si);

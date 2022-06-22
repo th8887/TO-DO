@@ -30,6 +30,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -329,8 +330,6 @@ public class Camera_or_Gallery extends AppCompatActivity {
                         path = "images/users/" + reAuth.getCurrentUser().getUid() + "/" + titlePic.getText().toString();
                         s0 = titlePic.getText().toString();
                     }
-
-
                     StorageReference ref = refStorage.child(path);
 
                     ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -354,26 +353,26 @@ public class Camera_or_Gallery extends AppCompatActivity {
                             progressDialog.setMessage("Uploaded " + (int) progress + "%");
                         }
                     });
-                }
 
-                switch (act){
-                    case 1:
-                        Intent gi = new Intent(this, CreateMission.class);
+                    switch (act) {
+                        case 1:
+                            Intent gi = new Intent(this, CreateMission.class);
 
-                        imagesNames.add(s0);
-                        gi.putExtra("check",3);
-                        imagesLinks.add(path);
-                        startActivity(gi);
-                        finish();
-                        break;
-                    case 2:
-                        Intent si = new Intent(this, Information.class);
-                        si.putExtra("way", path);
-                        si.putExtra("check",3);
-                        startActivity(si);
-                        finish();
-                        break;
+                            imagesNames.add(s0);
+                            gi.putExtra("check", 3);
+                            imagesLinks.add(path);
+                            startActivity(gi);
+                            finish();
+                            break;
+                        case 2:
+                            Intent si = new Intent(this, Information.class);
+                            si.putExtra("way", path);
+                            si.putExtra("check", 3);
+                            startActivity(si);
+                            finish();
+                            break;
 
+                    }
                 }
                 break;
             case 2:
@@ -391,8 +390,7 @@ public class Camera_or_Gallery extends AppCompatActivity {
                     SharedPreferences.Editor editor = setting.edit();
                     editor.putInt("count", count);
                     editor.commit();
-                } else
-                {
+                } else {
                     path = "images/users/" + reAuth.getCurrentUser().getUid() + "/" + titlePic.getText().toString();
                     s0 = titlePic.getText().toString();
                 }
@@ -419,26 +417,23 @@ public class Camera_or_Gallery extends AppCompatActivity {
                         progressDialog.setMessage("Uploaded " + (int)progress + "%");
                     }
                 });
-
                 switch (act){
                     case 1:
                         Intent ci = new Intent(this, CreateMission.class);
-
-                        imagesNames.add(s0);
-                        ci.putExtra("check",3);
-                        imagesLinks.add(path);
-                        startActivity(ci);
-                        finish();
-                        break;
-                    case 2:
-                        Intent si = new Intent(this, Information.class);
-                        si.putExtra("way", path);
-                        si.putExtra("check",3);
-                        startActivity(si);
-                        finish();
-                        break;
-
-                }
+                                imagesNames.add(s0);
+                                ci.putExtra("check",3);
+                                imagesLinks.add(path);
+                                startActivity(ci);
+                                finish();
+                                break;
+                            case 2:
+                                Intent si = new Intent(this, Information.class);
+                                si.putExtra("way", path);
+                                si.putExtra("check",3);
+                                startActivity(si);
+                                finish();
+                                break;
+                        }
 
                 break;
         }

@@ -293,6 +293,11 @@ public class CreateMission extends AppCompatActivity implements AdapterView.OnIt
                         m = new Mission(title, importance, description, currentDate, s, category, color);
                         m.setimagesLinks(imagesLinks);
                         m.setImagesNames(imagesNames);
+                        SharedPreferences setting= getSharedPreferences("missionInfo", MODE_PRIVATE);
+                        if (!title.equals(setting.getString("title", "a"))){
+                            refDBUC.child(setting.getString("title", "a")).removeValue();
+                        }
+
                         Log.i("CM","mission updated");
                         startActivity(new Intent(CreateMission.this, CheckList.class));
                         finish();

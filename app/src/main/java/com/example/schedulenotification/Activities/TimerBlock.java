@@ -312,14 +312,14 @@ public class TimerBlock extends AppCompatActivity implements AdapterView.OnItemC
                 break;
             case R.id.h:
                 hourt.setText("hours:" + adph.getItem(pos));
-                hour = Integer.parseInt(adpm.getItem(pos));
+                hour = Integer.parseInt(adph.getItem(pos));
                 if(!cd.getText().toString().equals("00:00:00")) {
                     b = true;
                 }
                 break;
             case R.id.s:
                 sect.setText("seconds:" + adps.getItem(pos));
-                seconds = Integer.parseInt(adpm.getItem(pos));
+                seconds = Integer.parseInt(adps.getItem(pos));
                 if(!cd.getText().toString().equals("00:00:00")) {
                     b = true;
                 }

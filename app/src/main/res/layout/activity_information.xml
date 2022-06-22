@@ -133,7 +133,7 @@
                 android:layout_height="0px"
                 android:layout_weight="10"
                 android:ems="10"
-                android:hint="name"
+                android:hint="phone"
                 android:inputType="textPersonName" />
 
             <Space
