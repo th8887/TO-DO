@@ -101,17 +101,18 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         setSupportActionBar(tb);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        if (getIntent().getIntExtra("check", -1) == 3) {
-            uploadProfile(getIntent().getStringExtra("way"));
-            b= true;
-        }
-
         checkPermission(42, Manifest.permission.READ_CALENDAR,
                 Manifest.permission.WRITE_CALENDAR,
                 Manifest.permission.INTERNET,
                 Manifest.permission.CAMERA,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.SCHEDULE_EXACT_ALARM);
+
+        if (getIntent().getIntExtra("check", -1) == 3) {
+            uploadProfile(getIntent().getStringExtra("way"));
+            b= true;
+        }
+
 
 
         Toast.makeText(this, "If you change things, make sure to press update connect!", Toast.LENGTH_SHORT).show();
@@ -156,17 +157,16 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
 
 
                     if ((!user.getProfile().equals(" ")) && (b == false)) {
-                        profilelink = user.getProfile();
                         uploadProfile(user.getProfile());
                     }
-                    b= false;
-
+                    b = false;
 
                     showCom.setText("Completed Missions: " + complete + "/" + all);
 
                     ArrayAdapter<String> adp = new ArrayAdapter<String>(Information.this,
                             androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, category);
                     categories.setAdapter(adp);
+
                 }
             }
         }
@@ -199,6 +199,7 @@ public class Information extends AppCompatActivity implements AdapterView.OnItem
         query.addListenerForSingleValueEvent(VEL);
         email = fbuser.getEmail();
         e.setText(email);
+
         SharedPreferences settings = getSharedPreferences("PREFS_NAME", MODE_PRIVATE);
         Boolean isChecked = settings.getBoolean("stayConnect", false);
         cBconnectview.setChecked(isChecked);

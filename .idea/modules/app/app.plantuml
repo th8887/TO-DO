@@ -1,0 +1,227 @@
+@startuml
+
+title __SCHEDULE_NOTIFICATION.APP's Class Diagram__\n
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      class com.example.schedulenotification.Activities.About {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      class com.example.schedulenotification.Activities.Authentication {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      namespace CalendarActivities {
+        class com.example.schedulenotification.Activities.CalendarActivities.CalendarView {
+        }
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      namespace CalendarActivities {
+        class com.example.schedulenotification.Activities.CalendarActivities.CreateEvent {
+        }
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      namespace CalendarActivities {
+        class com.example.schedulenotification.Activities.CalendarActivities.WeeklyCalendar {
+        }
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      class com.example.schedulenotification.Activities.Camera_or_Gallery {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      class com.example.schedulenotification.Activities.CheckList {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      class com.example.schedulenotification.Activities.CreateMission {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      class com.example.schedulenotification.Activities.EntryScreen {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      class com.example.schedulenotification.Activities.Information {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Activities {
+      class com.example.schedulenotification.Activities.TimerBlock {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Adapters {
+      class com.example.schedulenotification.Adapters.ColorAdapter {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Adapters {
+      class com.example.schedulenotification.Adapters.rollAdapter {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    class com.example.schedulenotification.BuildConfig {
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace CalendarHelpers {
+      class com.example.schedulenotification.CalendarHelpers.CalendarAdapter {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace CalendarHelpers {
+      class com.example.schedulenotification.CalendarHelpers.CalendarUtils {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace CalendarHelpers {
+      class com.example.schedulenotification.CalendarHelpers.CalendarViewHolder {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Classes {
+      class com.example.schedulenotification.Classes.Listener {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Classes {
+      class com.example.schedulenotification.Classes.Mission {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Classes {
+      class com.example.schedulenotification.Classes.Notification {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    namespace Classes {
+      class com.example.schedulenotification.Classes.User {
+      }
+    }
+  }
+  
+
+  namespace com.example.schedulenotification {
+    class com.example.schedulenotification.refFB {
+    }
+  }
+  
+
+  com.example.schedulenotification.Activities.About -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.Authentication -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.CalendarActivities.CalendarView .up.|> com.example.schedulenotification.CalendarHelpers.CalendarAdapter.OnItemClickListener
+  com.example.schedulenotification.Activities.CalendarActivities.CalendarView -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.CalendarActivities.CreateEvent -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.CalendarActivities.WeeklyCalendar .up.|> android.widget.AdapterView.OnItemClickListener
+  com.example.schedulenotification.Activities.CalendarActivities.WeeklyCalendar .up.|> com.example.schedulenotification.CalendarHelpers.CalendarAdapter.OnItemClickListener
+  com.example.schedulenotification.Activities.CalendarActivities.WeeklyCalendar -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.Camera_or_Gallery -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.CheckList .up.|> android.view.View.OnCreateContextMenuListener
+  com.example.schedulenotification.Activities.CheckList .up.|> android.widget.AdapterView.OnItemClickListener
+  com.example.schedulenotification.Activities.CheckList -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.CheckList o-- com.example.schedulenotification.Classes.Mission : m
+  com.example.schedulenotification.Activities.CheckList o-- com.example.schedulenotification.databinding.ActivityCheckListBinding : binding
+  com.example.schedulenotification.Activities.CreateMission .up.|> android.view.View.OnCreateContextMenuListener
+  com.example.schedulenotification.Activities.CreateMission .up.|> android.widget.AdapterView.OnItemClickListener
+  com.example.schedulenotification.Activities.CreateMission .up.|> android.widget.AdapterView.OnItemSelectedListener
+  com.example.schedulenotification.Activities.CreateMission -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.CreateMission o-- com.example.schedulenotification.Classes.User : user
+  com.example.schedulenotification.Activities.CreateMission o-- com.example.schedulenotification.databinding.ActivityMainBinding : binding
+  com.example.schedulenotification.Activities.EntryScreen -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.Information .up.|> android.widget.AdapterView.OnItemClickListener
+  com.example.schedulenotification.Activities.Information -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Activities.Information o-- com.example.schedulenotification.Classes.User : user
+  com.example.schedulenotification.Activities.TimerBlock .up.|> android.widget.AdapterView.OnItemClickListener
+  com.example.schedulenotification.Activities.TimerBlock -up-|> androidx.appcompat.app.AppCompatActivity
+  com.example.schedulenotification.Adapters.ColorAdapter -up-|> android.widget.BaseAdapter
+  com.example.schedulenotification.Adapters.rollAdapter -up-|> android.widget.ArrayAdapter
+  com.example.schedulenotification.CalendarHelpers.CalendarAdapter -up-|> androidx.recyclerview.widget.RecyclerView.Adapter
+  com.example.schedulenotification.CalendarHelpers.CalendarAdapter o-- com.example.schedulenotification.CalendarHelpers.CalendarAdapter.OnItemClickListener : mOnItenClickListener
+  com.example.schedulenotification.CalendarHelpers.CalendarViewHolder .up.|> android.view.View.OnClickListener
+  com.example.schedulenotification.CalendarHelpers.CalendarViewHolder -up-|> androidx.recyclerview.widget.RecyclerView.ViewHolder
+  com.example.schedulenotification.CalendarHelpers.CalendarViewHolder o-- com.example.schedulenotification.CalendarHelpers.CalendarAdapter.OnItemClickListener : onItemClickListener
+  com.example.schedulenotification.Classes.Listener -up-|> android.service.notification.NotificationListenerService
+  com.example.schedulenotification.Classes.Notification -up-|> android.content.BroadcastReceiver
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

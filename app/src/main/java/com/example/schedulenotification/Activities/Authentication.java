@@ -238,7 +238,6 @@ public class Authentication extends AppCompatActivity {
             if(TextUtils.isEmpty(phone)){
                 p.setError("Phone is Required.");
             }
-            //you don't always need a phone number...
             if (TextUtils.isEmpty(password) ){
                 pa.setError("Password Is Required.");
             }
@@ -247,7 +246,10 @@ public class Authentication extends AppCompatActivity {
                     pa.setError("Password must be longer than 6 digits.");
                 }
                 else if (!isValidMobileNo(phone)){
-                    Toast.makeText(this, "please give a correct phone number", Toast.LENGTH_SHORT).show();
+                    p.setError("please give a correct phone number");
+                }
+                else if (!email.endsWith("@gmail.com")){
+                    e.setError("please enter a legal email");
                 }
                 else {
                     final ProgressDialog pd = ProgressDialog.show(this, "Register", "Registering...", true);
@@ -273,7 +275,6 @@ public class Authentication extends AppCompatActivity {
 
                                         Toast.makeText(Authentication.this, "Successful registration", Toast.LENGTH_SHORT).show();
                                         Intent si = new Intent(Authentication.this, Information.class);
-                                        //si.putExtra("newuser",true);
                                         startActivity(si);
                                     } else {
                                         if (task.getException() instanceof FirebaseAuthUserCollisionException)
